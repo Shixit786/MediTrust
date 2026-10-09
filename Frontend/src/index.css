@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg: #F0F0F0;
+    --surface: #FFFFFF;
+    --ink: #0A0A0A;
+    --muted: #6B6F76;
+    --line: #0A0A0A;
+    --line-subtle: rgba(10, 10, 10, 0.12);
+    --line-dim: rgba(10, 10, 10, 0.2);
+    --accent: #0037FF;
+    --accent-soft: rgba(0, 55, 255, 0.08);
+    --accent-glow: rgba(0, 55, 255, 0.18);
+    
+    --blob-cyan: #B5F0FF;
+    --blob-blue: #6FA3FF;
+    --blob-peri: #A5B4FC;
+    
+    --risk-low: #16A34A;
+    --risk-medium: #F59E0B;
+    --risk-high: #F97316;
+    --risk-critical: #E11D2E;
+
+    --font-display: "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  * {
+    border-color: var(--line-subtle);
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: var(--font-display);
+    background-color: var(--bg);
+    color: var(--ink);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-display);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* Thin subtle scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(10, 10, 10, 0.15);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(10, 10, 10, 0.3);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+.font-mono-label {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+}
+
+.hairline-border-t {
+  border-top: 1px solid var(--line);
+}
+
+.hairline-border-b {
+  border-bottom: 1px solid var(--line);
+}
+
+.hairline-border-y {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.hairline-border-subtle {
+  border-color: var(--line-subtle);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}

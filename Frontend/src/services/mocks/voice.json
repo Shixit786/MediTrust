@@ -1,0 +1,34 @@
+{
+  "shield": "voice",
+  "risk": 87,
+  "threat": "Deepfake Voice",
+  "level": "critical",
+  "confidence": 0.94,
+  "signals": [
+    {
+      "name": "MFCC ANOMALY",
+      "detail": "High-frequency phase discontinuity matching neural vocoder artifacts",
+      "severity": "critical"
+    },
+    {
+      "name": "SPECTRAL FLUX",
+      "detail": "Unnatural formant transitions detected across vowel boundaries",
+      "severity": "high"
+    },
+    {
+      "name": "SILENCE PURITY",
+      "detail": "Synthetic zero-noise floor detected between utterance segments",
+      "severity": "high"
+    },
+    {
+      "name": "PITCH VARIANCE",
+      "detail": "Constrained fundamental frequency variation (< 8 Hz jitter)",
+      "severity": "medium"
+    },
+    {
+      "name": "BREATHING PATTERN",
+      "detail": "Complete absence of biological inhalation pauses across 45 seconds",
+      "severity": "critical"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "overall_risk": 94,
+  "level": "critical",
+  "pattern": "Coordinated Multi-Stage Fraud",
+  "attack_chain": [
+    {
+      "step": "Fake job offer",
+      "shield": "job"
+    },
+    {
+      "step": "Deepfake voice call",
+      "shield": "voice"
+    },
+    {
+      "step": "SIM swap",
+      "shield": "sim"
+    },
+    {
+      "step": "OTP / account takeover",
+      "shield": "sim"
+    }
+  ],
+  "explanation": "High-confidence multi-vector attack detected targeting healthcare staff credentials. Attacker initiated contact via fake hospital recruitment offer, followed up with a cloned voice call impersonating HR, and executed a SIM swap to intercept secondary 2FA verification tokens.",
+  "actions": [
+    "Freeze account (simulated)",
+    "Block suspicious activity",
+    "Alert user"
+  ]
+}
