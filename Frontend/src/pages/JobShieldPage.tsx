@@ -1,57 +1,212 @@
-import React from 'react';
+import React, { useEffect, useCallback, useRef, useState } from 'react';
+import { useAnalysisStore } from '../store/useAnalysisStore';
+import { api } from '../services/api';
+import type { JobShieldResult } from '../types/analysis';
+import { JobShieldHeader } from '../components/job/JobShieldHeader';
+import { JobInputSection } from '../components/job/JobInputSection';
+import { JobScanningView } from '../components/job/JobScanningView';
+import { JobResultVerdict } from '../components/job/JobResultVerdict';
+import { JobHighlightedMessage } from '../components/job/JobHighlightedMessage';
+import { JobRedFlagsList } from '../components/job/JobRedFlagsList';
+import { JobLinkAnalysis } from '../components/job/JobLinkAnalysis';
+import { JobCompanyVerification } from '../components/job/JobCompanyVerification';
+import { JobAiAnalysis } from '../components/job/JobAiAnalysis';
+import { JobSafeNextStep } from '../components/job/JobSafeNextStep';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 import { MonoLabel } from '../components/ui/MonoLabel';
-import { ArrowLink } from '../components/ui/ArrowLink';
-import { FileText } from 'lucide-react';
 
-export const JobShieldPage: React.FC = () => {
+export const JobShieldPage: React.FC = React.memo(() => {
+  const jobShieldState = useAnalysisStore((s) => s.jobShieldState);
+  const jobResult = useAnalysisStore((s) => s.jobResult);
+  const setJobShieldState = useAnalysisStore((s) => s.setJobShieldState);
+  const setJobResult = useAnalysisStore((s) => s.setJobResult);
+  const resetJobShield = useAnalysisStore((s) => s.resetJobShield);
+  const setBlobTone = useAnalysisStore((s) => s.setBlobTone);
+  const setShieldResult = useAnalysisStore((s) => s.setShieldResult);
+
+  // Cached pending result while scanning view runs its 4s animation
+  const pendingResultRef = useRef<JobShieldResult | null>(null);
+  const pendingParamsRef = useRef<{ text?: string; file?: File | null }>({});
+  const [isScamTarget, setIsScamTarget] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Cleanup: Reset gradient blob tone to idle on unmount
+  useEffect(() => {
+    return () => {
+      setBlobTone('idle');
+    };
+  }, [setBlobTone]);
+
+  // Synchronize blob tone whenever jobResult changes
+  useEffect(() => {
+    if (jobShieldState === 'done' && jobResult) {
+      setBlobTone(jobResult.level);
+    } else {
+      setBlobTone('idle');
+    }
+  }, [jobShieldState, jobResult, setBlobTone]);
+
+  const handleScan = useCallback(
+    async (data: { text: string; file: File | null }) => {
+      setErrorMessage(null);
+      pendingParamsRef.current = data;
+
+      // Determine target outcome for the scanning view animation
+      const textLower = (data.text || '').toLowerCase();
+      const hasFile = !!data.file;
+      const scamKeywords = [
+        'fee',
+        'upi',
+        'otp',
+        'deposit',
+        'limited seats',
+        'aadhaar',
+        'registration',
+        'gulf',
+        'ward coordinator',
+      ];
+      const isScam = hasFile || scamKeywords.some((kw) => textLower.includes(kw));
+      setIsScamTarget(isScam);
+
+      // Begin scanning phase
+      setJobShieldState('scanning');
+
+      try {
+        // Pre-fetch mock analysis or start request immediately
+        const res = await api.analyzeJob({ text: data.text, file: data.file });
+        pendingResultRef.current = res;
+      } catch (err) {
+        console.error('Job analysis error:', err);
+        setErrorMessage(
+          err instanceof Error
+            ? err.message
+            : 'Unable to complete forensic job analysis. Please verify your connection and try again.'
+        );
+        setJobShieldState('error');
+      }
+    },
+    [setJobShieldState]
+  );
+
+  const handleScanComplete = useCallback(() => {
+    if (pendingResultRef.current) {
+      const res = pendingResultRef.current;
+      setJobResult(res);
+      setShieldResult('job', res);
+      setJobShieldState('done');
+      setBlobTone(res.level);
+    } else if (!errorMessage) {
+      // In case api took longer or failed
+      setJobShieldState('error');
+      setErrorMessage('Scan timed out. Please try again.');
+    }
+  }, [errorMessage, setBlobTone, setJobResult, setJobShieldState, setShieldResult]);
+
+  const handleScanAnother = useCallback(() => {
+    pendingResultRef.current = null;
+    resetJobShield();
+    setBlobTone('idle');
+    setErrorMessage(null);
+  }, [resetJobShield, setBlobTone]);
+
+  const handleRetry = useCallback(() => {
+    if (pendingParamsRef.current) {
+      handleScan({
+        text: pendingParamsRef.current.text || '',
+        file: pendingParamsRef.current.file || null,
+      });
+    } else {
+      handleScanAnother();
+    }
+  }, [handleScan, handleScanAnother]);
+
   return (
-    <div className="w-full max-w-[1400px] mx-auto px-6 sm:px-10 md:px-14 py-16 sm:py-24 min-h-[calc(100vh-220px)] flex flex-col justify-between">
-      <div>
-        <div className="flex items-center gap-3 mb-6">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#F5B800] animate-pulse" />
-          <MonoLabel color="accent" className="text-sm font-semibold tracking-widest">
-            COMING NEXT
-          </MonoLabel>
-        </div>
+    <div className="w-full max-w-[1400px] mx-auto px-6 sm:px-10 md:px-14 py-10 sm:py-16 flex flex-col">
+      {/* 1) Header */}
+      <JobShieldHeader />
 
-        <h1 className="text-5xl sm:text-7xl md:text-8xl font-light font-['Inter_Tight'] tracking-tight text-[#0A0A0A] mb-8">
-          Job Shield
-        </h1>
-
-        <p className="text-lg sm:text-xl text-[#6B6F76] font-light max-w-2xl leading-relaxed mb-12">
-          Fake job and phishing detection protecting healthcare professionals and applicants. Scans WhatsApp job messages and PDF offers, extracts URLs, runs six threat-intelligence checks, AI scam analysis, and MCA21 company verification.
-        </p>
-
-        <div className="p-8 rounded-[20px] bg-white/80 border border-[#0A0A0A] max-w-xl backdrop-blur-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <FileText className="w-5 h-5 text-[#F5B800]" />
-            <MonoLabel color="ink" className="text-xs font-semibold">
-              SPECIFICATION // JOB·SHIELD
-            </MonoLabel>
-          </div>
-          <div className="space-y-3 font-mono-label text-xs text-[#6B6F76]">
-            <div className="flex justify-between border-b border-[#0A0A0A]/10 pb-2">
-              <span>THREAT INTEL</span>
-              <span className="text-[#0A0A0A]">06 INTELLIGENCE FEEDS</span>
-            </div>
-            <div className="flex justify-between border-b border-[#0A0A0A]/10 pb-2">
-              <span>VERIFICATION</span>
-              <span className="text-[#0A0A0A]">MCA21 CORPORATE REGISTRY</span>
-            </div>
-            <div className="flex justify-between">
-              <span>EXTRACTION</span>
-              <span className="text-[#F5B800]">PDF + WHATSAPP OCR / NLP</span>
+      {/* 2) Error State */}
+      {jobShieldState === 'error' && (
+        <div
+          role="alert"
+          className="p-6 rounded-[20px] bg-[#EF4444]/10 border border-[#EF4444]/30 mb-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+        >
+          <div className="flex items-center gap-3">
+            <AlertCircle className="w-6 h-6 text-[#DC2626] shrink-0" />
+            <div>
+              <div className="font-mono text-xs font-bold text-[#DC2626] uppercase">
+                ANALYSIS ENCOUNTERED AN ERROR
+              </div>
+              <p className="text-sm text-[#0A0A0A] font-light mt-0.5">
+                {errorMessage || 'Failed to complete job threat intel checks.'}
+              </p>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div className="border-t border-[#0A0A0A] pt-8 mt-12 flex justify-between items-center">
-        <MonoLabel color="muted">PREPARED FOR JOB SHIELD INTEGRATION</MonoLabel>
-        <ArrowLink to="/dashboard" size="md">
-          GO TO DASHBOARD
-        </ArrowLink>
+          <button
+            onClick={handleRetry}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0A0A0A] text-white text-xs font-mono font-semibold tracking-wider hover:bg-[#202020] transition-colors"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>RETRY</span>
+          </button>
+        </div>
+      )}
+
+      {/* 3) Input Section (Visible when idle or after error) */}
+      {(jobShieldState === 'idle' || jobShieldState === 'error') && (
+        <JobInputSection onScan={handleScan} />
+      )}
+
+      {/* 4) Scanning View (Replaces input area while scanning) */}
+      {jobShieldState === 'scanning' && (
+        <JobScanningView
+          isScamTarget={isScamTarget}
+          onScanComplete={handleScanComplete}
+        />
+      )}
+
+      {/* 5) Result View (Appears after scanning completes) */}
+      {jobShieldState === 'done' && jobResult && (
+        <div className="w-full space-y-2 animate-fade-in" aria-live="polite">
+          {/* a) Verdict with Scam Probability */}
+          <JobResultVerdict
+            result={jobResult}
+            onScanAnother={handleScanAnother}
+          />
+
+          {/* b) Highlighted Forensic Message */}
+          <JobHighlightedMessage text={jobResult.extracted_text} />
+
+          {/* c) Red Flag Pattern Detection List */}
+          <JobRedFlagsList redFlags={jobResult.red_flags} />
+
+          {/* d) Deep URL Forensics */}
+          <JobLinkAnalysis urls={jobResult.urls} />
+
+          {/* e) Company MCA21 Registry Verification */}
+          <JobCompanyVerification company={jobResult.company} />
+
+          {/* f) AI Forensics Report with English/Hinglish */}
+          <JobAiAnalysis ai={jobResult.ai} />
+
+          {/* g) Safe Next Step Card & Cybercrime Helpline */}
+          <JobSafeNextStep result={jobResult} />
+        </div>
+      )}
+
+      {/* Footer hairlines */}
+      <div className="border-t border-[#0A0A0A]/20 pt-8 mt-12 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <MonoLabel color="muted">
+          SHIELD 01 // FRAUD FORENSICS · ENHANCED RECRUITMENT DEFENSE
+        </MonoLabel>
+        <span className="font-mono text-xs text-[#6B6F76]">
+          MEDITRUST AI HEALTHCARE SECURITY SUITE
+        </span>
       </div>
     </div>
   );
-};
+});
+
+JobShieldPage.displayName = 'JobShieldPage';
+export default JobShieldPage;

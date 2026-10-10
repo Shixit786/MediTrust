@@ -14,15 +14,20 @@ const navShields = [
   { id: 'sim', label: 'sim·guard', route: '/sim' },
 ];
 
-export const TopBar: React.FC<TopBarProps> = ({ onShieldClick }) => {
+const menuLinks = [
+  { title: 'Home', subtitle: 'Overview & Architecture', path: '/' },
+  { title: 'Dashboard', subtitle: 'Unified Security Command', path: '/dashboard' },
+  { title: 'Voice Shield', subtitle: 'Deepfake Audio & Speech Forensic', path: '/voice' },
+  { title: 'Job Shield', subtitle: 'WhatsApp, PDF & URL Scams', path: '/job' },
+  { title: 'SIM Guard', subtitle: 'SIM Swap & Carrier Telemetry', path: '/sim' },
+  { title: 'Fusion Engine', subtitle: 'Cross-Vector Attack Synthesis', path: '/fusion' },
+  { title: 'History', subtitle: 'Past Threat Audit Logs', path: '/history' },
+];
+
+export const TopBar: React.FC<TopBarProps> = React.memo(({ onShieldClick }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-
-  // Close menu on route change
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [location.pathname]);
 
   // Lock scroll when menu open
   useEffect(() => {
@@ -63,8 +68,8 @@ export const TopBar: React.FC<TopBarProps> = ({ onShieldClick }) => {
   return (
     <>
       <header
-        className="fixed top-0 left-0 right-0 z-50 w-full border-t border-b border-[#0A0A0A] bg-[#F0F0F0]/85 backdrop-blur-md transition-all duration-200"
-        style={{ height: '80px' }}
+        className="fixed top-0 left-0 right-0 z-50 w-full border-t border-b border-[#0A0A0A] bg-[#F0F0F0]/92 transition-colors duration-200"
+        style={{ height: '80px', transform: 'translateZ(0)' }}
       >
         <div className="w-full max-w-[1400px] h-full mx-auto px-6 sm:px-10 md:px-14 flex items-center justify-between">
           {/* Left: Brand Wordmark */}
@@ -102,7 +107,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onShieldClick }) => {
             <Link
               to="/history"
               aria-label="View Analysis History"
-              className="w-12 h-12 sm:w-14 sm:h-14 rounded-[16px] bg-[#0A0A0A] text-white flex items-center justify-center hover:bg-[#1F1F1F] transition-all duration-200 active:scale-95 outline-none focus-visible:ring-2 focus-visible:ring-[#0037FF] shadow-sm group"
+              className="w-12 h-12 sm:w-14 sm:h-14 rounded-[16px] bg-[#0A0A0A] text-white flex items-center justify-center hover:bg-[#1F1F1F] transition-all duration-200 active:scale-95 outline-none focus-visible:ring-2 focus-visible:ring-[#0037FF] group"
             >
               <History className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-200 group-hover:rotate-[-20deg]" />
             </Link>
@@ -113,7 +118,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onShieldClick }) => {
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label={menuOpen ? 'Close Menu' : 'Open Navigation Menu'}
               aria-expanded={menuOpen}
-              className="w-12 h-12 sm:w-14 sm:h-14 rounded-[16px] bg-[#0A0A0A] text-white flex items-center justify-center hover:bg-[#1F1F1F] transition-all duration-200 active:scale-95 outline-none focus-visible:ring-2 focus-visible:ring-[#0037FF] shadow-sm cursor-pointer"
+              className="w-12 h-12 sm:w-14 sm:h-14 rounded-[16px] bg-[#0A0A0A] text-white flex items-center justify-center hover:bg-[#1F1F1F] transition-all duration-200 active:scale-95 outline-none focus-visible:ring-2 focus-visible:ring-[#0037FF] cursor-pointer"
             >
               {menuOpen ? (
                 <X className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -132,8 +137,9 @@ export const TopBar: React.FC<TopBarProps> = ({ onShieldClick }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="fixed inset-0 z-40 bg-[#F0F0F0]/98 backdrop-blur-xl flex flex-col justify-between pt-28 pb-12 px-6 sm:px-14 overflow-y-auto"
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            className="fixed inset-0 z-40 bg-[#F0F0F0]/98 flex flex-col justify-between pt-28 pb-12 px-6 sm:px-14 overflow-y-auto will-change-transform"
+            style={{ transform: 'translateZ(0)' }}
           >
             {/* Top section info */}
             <div className="w-full max-w-[1400px] mx-auto flex justify-between items-center border-b border-[#0A0A0A] pb-6">
@@ -143,15 +149,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onShieldClick }) => {
 
             {/* Main Links */}
             <div className="w-full max-w-[1400px] mx-auto py-10 sm:py-14 flex flex-col gap-5 sm:gap-7">
-              {[
-                { title: 'Home', subtitle: 'Overview & Architecture', path: '/' },
-                { title: 'Dashboard', subtitle: 'Unified Security Command', path: '/dashboard' },
-                { title: 'Voice Shield', subtitle: 'Deepfake Audio & Speech Forensic', path: '/voice' },
-                { title: 'Job Shield', subtitle: 'WhatsApp, PDF & URL Scams', path: '/job' },
-                { title: 'SIM Guard', subtitle: 'SIM Swap & Carrier Telemetry', path: '/sim' },
-                { title: 'Fusion Engine', subtitle: 'Cross-Vector Attack Synthesis', path: '/fusion' },
-                { title: 'History', subtitle: 'Past Threat Audit Logs', path: '/history' },
-              ].map((item, index) => (
+              {menuLinks.map((item, index) => (
                 <Link
                   key={item.path + index}
                   to={item.path}
@@ -187,4 +185,6 @@ export const TopBar: React.FC<TopBarProps> = ({ onShieldClick }) => {
       </AnimatePresence>
     </>
   );
-};
+});
+
+TopBar.displayName = 'TopBar';

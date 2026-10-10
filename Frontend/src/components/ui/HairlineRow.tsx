@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import React from 'react';
 import clsx from 'clsx';
 
 export interface HairlineRowProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -12,7 +11,7 @@ export interface HairlineRowProps extends React.HTMLAttributes<HTMLDivElement> {
   hoverAccentColor?: string; // default soft accent
 }
 
-export const HairlineRow: React.FC<HairlineRowProps> = ({
+export const HairlineRow: React.FC<HairlineRowProps> = React.memo(({
   children,
   borderTop = true,
   borderBottom = true,
@@ -20,22 +19,22 @@ export const HairlineRow: React.FC<HairlineRowProps> = ({
   className,
   onClick,
   hoverAccentColor = 'rgba(0, 55, 255, 0.06)',
+  style,
   ...props
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const prefersReduced = useReducedMotion();
-
   return (
     <div
       className={clsx(
         'relative w-full overflow-hidden transition-colors duration-200',
         borderTop && 'border-t border-[#0A0A0A]',
         borderBottom && 'border-b border-[#0A0A0A]',
-        interactive && 'cursor-pointer group select-none',
+        interactive && 'hairline-row-hover cursor-pointer group select-none',
         className
       )}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      style={{
+        ...style,
+        ...(interactive ? ({ '--hover-accent': hoverAccentColor } as React.CSSProperties) : {}),
+      }}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
@@ -47,30 +46,12 @@ export const HairlineRow: React.FC<HairlineRowProps> = ({
       }}
       {...props}
     >
-      {/* Background slide-in hover effect */}
-      {interactive && (
-        <motion.div
-          className="absolute inset-0 pointer-events-none z-0"
-          initial={false}
-          animate={{
-            scaleX: isHovered ? 1 : 0,
-            opacity: isHovered ? 1 : 0,
-          }}
-          transition={{
-            duration: prefersReduced ? 0.01 : 0.35,
-            ease: [0.16, 1, 0.3, 1],
-          }}
-          style={{
-            transformOrigin: 'left center',
-            backgroundColor: hoverAccentColor,
-          }}
-        />
-      )}
-
       {/* Content */}
       <div className="relative z-10 w-full flex items-center justify-between">
         {children}
       </div>
     </div>
   );
-};
+});
+
+HairlineRow.displayName = 'HairlineRow';

@@ -8,20 +8,20 @@ export interface MonoLabelProps extends React.HTMLAttributes<HTMLSpanElement> {
   as?: 'span' | 'div' | 'p' | 'h4';
 }
 
-export const MonoLabel: React.FC<MonoLabelProps> = ({
+const colorMap = {
+  ink: 'text-[#0A0A0A]',
+  muted: 'text-[#6B6F76]',
+  accent: 'text-[#0037FF]',
+  subtle: 'text-[#0A0A0A]/60',
+};
+
+export const MonoLabel: React.FC<MonoLabelProps> = React.memo(({
   color = 'muted',
   children,
   className,
   as: Component = 'span',
   ...props
 }) => {
-  const colorMap = {
-    ink: 'text-[#0A0A0A]',
-    muted: 'text-[#6B6F76]',
-    accent: 'text-[#0037FF]',
-    subtle: 'text-[#0A0A0A]/60',
-  };
-
   return (
     <Component
       className={clsx(
@@ -34,4 +34,6 @@ export const MonoLabel: React.FC<MonoLabelProps> = ({
       {children}
     </Component>
   );
-};
+});
+
+MonoLabel.displayName = 'MonoLabel';

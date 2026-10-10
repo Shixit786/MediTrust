@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useReducedMotion } from 'framer-motion';
 import clsx from 'clsx';
 
 export interface ArrowLinkProps {
@@ -14,7 +13,21 @@ export interface ArrowLinkProps {
   showArrow?: boolean;
 }
 
-export const ArrowLink: React.FC<ArrowLinkProps> = ({
+const sizeClasses = {
+  sm: 'text-sm font-semibold tracking-wider gap-1.5',
+  md: 'text-base sm:text-lg font-semibold tracking-wider gap-2',
+  lg: 'text-xl sm:text-2xl font-medium tracking-wide gap-3',
+  hero: 'text-lg sm:text-2xl md:text-3xl font-normal tracking-tight gap-3',
+};
+
+const arrowSizeClasses = {
+  sm: 'text-base',
+  md: 'text-lg sm:text-xl',
+  lg: 'text-2xl',
+  hero: 'text-2xl sm:text-3xl',
+};
+
+export const ArrowLink: React.FC<ArrowLinkProps> = React.memo(({
   to,
   href,
   onClick,
@@ -24,22 +37,6 @@ export const ArrowLink: React.FC<ArrowLinkProps> = ({
   size = 'md',
   showArrow = true,
 }) => {
-  const prefersReduced = useReducedMotion();
-
-  const sizeClasses = {
-    sm: 'text-sm font-semibold tracking-wider gap-1.5',
-    md: 'text-base sm:text-lg font-semibold tracking-wider gap-2',
-    lg: 'text-xl sm:text-2xl font-medium tracking-wide gap-3',
-    hero: 'text-lg sm:text-2xl md:text-3xl font-normal tracking-tight gap-3',
-  };
-
-  const arrowSizeClasses = {
-    sm: 'text-base',
-    md: 'text-lg sm:text-xl',
-    lg: 'text-2xl',
-    hero: 'text-2xl sm:text-3xl',
-  };
-
   const content = (
     <span className={clsx(
       'group/arrow inline-flex items-center text-[#0037FF] font-["Inter_Tight"] uppercase transition-colors duration-200 select-none',
@@ -51,14 +48,15 @@ export const ArrowLink: React.FC<ArrowLinkProps> = ({
         <span className="absolute left-0 -bottom-0.5 w-0 h-[1px] bg-[#0037FF] transition-all duration-300 group-hover/arrow:w-full" />
       </span>
       {showArrow && (
-        <motion.span
-          className={clsx('inline-block font-sans font-light leading-none', arrowSizeClasses[size], arrowClassName)}
-          animate={prefersReduced ? {} : undefined}
-          whileHover={prefersReduced ? {} : { x: 3, y: -3, rotate: 0 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+        <span
+          className={clsx(
+            'inline-block font-sans font-light leading-none transition-transform duration-200 group-hover/arrow:translate-x-0.5 group-hover/arrow:-translate-y-0.5',
+            arrowSizeClasses[size],
+            arrowClassName
+          )}
         >
           ↗
-        </motion.span>
+        </span>
       )}
     </span>
   );
@@ -88,4 +86,6 @@ export const ArrowLink: React.FC<ArrowLinkProps> = ({
       {content}
     </button>
   );
-};
+});
+
+ArrowLink.displayName = 'ArrowLink';

@@ -1,0 +1,143 @@
+{
+  "shield": "job",
+  "risk": 92,
+  "threat": "High-Risk Recruitment Fraud",
+  "level": "critical",
+  "confidence": 0.96,
+  "signals": [
+    {
+      "name": "GOOGLE SAFE BROWSING",
+      "detail": "Extracted offer portal URL flagged as credential harvesting host",
+      "severity": "critical"
+    },
+    {
+      "name": "VIRUSTOTAL",
+      "detail": "14/70 engines detect malicious payload script in linked attachment",
+      "severity": "critical"
+    },
+    {
+      "name": "URLHAUS",
+      "detail": "Domain actively listed as phishing drop for hospital staffing credentials",
+      "severity": "high"
+    },
+    {
+      "name": "ABUSEIPDB",
+      "detail": "Hosting ASN associated with high-confidence fraud botnet activities",
+      "severity": "high"
+    },
+    {
+      "name": "SECURITYTRAILS",
+      "detail": "Domain registered 4 days ago with privacy guard WHOIS masking",
+      "severity": "high"
+    },
+    {
+      "name": "COMPANY VERIFICATION (MCA21)",
+      "detail": "Registered healthcare entity name does not match sender domain WHOIS",
+      "severity": "critical"
+    }
+  ],
+  "extracted_text": "Careers Desk, CityCare Multispeciality Hospital\n\nDear Candidate,\nCongratulations! Your profile has been shortlisted for the post of Ward Coordinator (Healthcare Tele-Operations).\n\nMonthly Salary: Rs 85,000/month\nWork Mode: 100% Work from home\nImmediate Joining. Limited seats available!\n\nTo secure your appointment, kindly reply within 2 hours and pay a refundable registration fee of Rs 2,999 via UPI for medical kit allotment.\nShare the screenshot and transaction OTP on this WhatsApp number +91 98201 44521 for ID verification.\n\nClick official portal link to verify candidate profile:\nhttp://citycare-hospital-careers.xyz/apply\n\nNote: Rs 2,999 is 100% refundable with first salary payout. Offer expires today!",
+  "urls": [
+    {
+      "url": "http://citycare-hospital-careers.xyz/apply",
+      "verdict": "phishing",
+      "sources": [
+        { "name": "GOOGLE SAFE BROWSING", "status": "flagged" },
+        { "name": "VIRUSTOTAL (75+ engines)", "status": "flagged" },
+        { "name": "URLHAUS", "status": "flagged" },
+        { "name": "ABUSEIPDB", "status": "suspicious" },
+        { "name": "SECURITYTRAILS", "status": "suspicious" },
+        { "name": "HEURISTIC ENGINE", "status": "flagged" }
+      ],
+      "reasons": [
+        "Look-alike of legitimate hospital name ('CityCare')",
+        ".xyz top-level domain associated with high scam velocity",
+        "Unencrypted HTTP protocol used for sensitive hiring intake"
+      ]
+    }
+  ],
+  "red_flags": [
+    {
+      "category": "UPFRONT PAYMENT",
+      "title": "Advance Fee Demand via UPI",
+      "detail": "Demands Rs 2,999 advance registration fee. Legitimate hospitals never charge candidates to hire.",
+      "healthcare": true
+    },
+    {
+      "category": "OTP REQUEST",
+      "title": "Authentication OTP Harvesting",
+      "detail": "Explicitly requests candidate to share verification OTP over WhatsApp under the guise of ID verification.",
+      "healthcare": false
+    },
+    {
+      "category": "URGENCY",
+      "title": "Artificial Time Pressure",
+      "detail": "Enforces false urgency ('reply within 2 hours', 'limited seats available') to bypass critical evaluation.",
+      "healthcare": false
+    },
+    {
+      "category": "UNREALISTIC SALARY",
+      "title": "Inflated Entry-Level Compensation",
+      "detail": "Offering Rs 85,000/month for an entry-level remote Ward Coordinator is 3.5x industry standard benchmarks.",
+      "healthcare": true
+    },
+    {
+      "category": "SUSPICIOUS LINK",
+      "title": "Newly Registered Phishing Host",
+      "detail": "citycare-hospital-careers.xyz is an unverified external domain unlinked to any accredited hospital group.",
+      "healthcare": true
+    }
+  ],
+  "highlights": [
+    {
+      "start": 0,
+      "end": 0,
+      "phrase": "refundable registration fee of Rs 2,999",
+      "category": "payment",
+      "reason": "Advance fee fraud: Legitimate employers never charge candidates"
+    },
+    {
+      "start": 0,
+      "end": 0,
+      "phrase": "transaction OTP",
+      "category": "otp",
+      "reason": "Direct attack vector: OTPs provide full account compromise"
+    },
+    {
+      "start": 0,
+      "end": 0,
+      "phrase": "within 2 hours",
+      "category": "urgency",
+      "reason": "Coercive urgency tactic used to force hasty payments"
+    },
+    {
+      "start": 0,
+      "end": 0,
+      "phrase": "Rs 85,000/month",
+      "category": "salary",
+      "reason": "Unrealistic compensation benchmark designed as clickbait"
+    },
+    {
+      "start": 0,
+      "end": 0,
+      "phrase": "http://citycare-hospital-careers.xyz/apply",
+      "category": "link",
+      "reason": "Look-alike hospital domain on high-risk .xyz TLD"
+    }
+  ],
+  "company": {
+    "name": "CityCare Multispeciality Hospital",
+    "checks": [
+      { "label": "REGISTERED NAME MATCH", "status": "mismatch" },
+      { "label": "INCORPORATION DATE", "status": "not_found" },
+      { "label": "COMPANY STATUS", "status": "not_found" },
+      { "label": "DOMAIN MATCHES COMPANY", "status": "mismatch" }
+    ]
+  },
+  "ai": {
+    "summary_en": "High-confidence job scam engineered to extract advance UPI fees and steal secondary account authentication OTPs. The attacker impersonates hospital HR, promises an unrealistic salary, and redirects victims to an unverified .xyz credential-harvesting domain.",
+    "summary_hi": "Ye offer poori tarah nakli lagta hai. Asli hospital naukri ke liye kabhi registration fee ya UPI payment nahi maangta. Link mat kholo aur WhatsApp par OTP kabhi share mat karo.",
+    "patterns": ["Advance Fee Scam", "OTP Interception", "Hospital Domain Impersonation", "Artificial Urgency"],
+    "confidence": 0.96
+  }
+}

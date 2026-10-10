@@ -1,57 +1,243 @@
-import React from 'react';
+import React, { useEffect, useCallback, useRef, useState } from 'react';
+import { useAnalysisStore } from '../store/useAnalysisStore';
+import { api } from '../services/api';
+import type { VoiceShieldResult, FeatureStatus } from '../types/analysis';
+import { VoiceShieldHeader } from '../components/voice/VoiceShieldHeader';
+import { VoiceInputSection } from '../components/voice/VoiceInputSection';
+import { VoiceAnalysisView } from '../components/voice/VoiceAnalysisView';
+import { VoiceResultVerdict } from '../components/voice/VoiceResultVerdict';
+import { VoiceWaveformTimeline } from '../components/voice/VoiceWaveformTimeline';
+import { VoiceFeaturesTable } from '../components/voice/VoiceFeaturesTable';
+import { VoiceSynapseMapCard } from '../components/voice/VoiceSynapseMapCard';
+import { VoiceAiReport } from '../components/voice/VoiceAiReport';
+import { VoiceSafeNextStep } from '../components/voice/VoiceSafeNextStep';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 import { MonoLabel } from '../components/ui/MonoLabel';
-import { ArrowLink } from '../components/ui/ArrowLink';
-import { Mic } from 'lucide-react';
 
-export const VoiceShieldPage: React.FC = () => {
+export const VoiceShieldPage: React.FC = React.memo(() => {
+  const voiceShieldState = useAnalysisStore((s) => s.voiceShieldState);
+  const voiceResult = useAnalysisStore((s) => s.voiceResult);
+  const setVoiceShieldState = useAnalysisStore((s) => s.setVoiceShieldState);
+  const setVoiceResult = useAnalysisStore((s) => s.setVoiceResult);
+  const resetVoiceShield = useAnalysisStore((s) => s.resetVoiceShield);
+  const setBlobTone = useAnalysisStore((s) => s.setBlobTone);
+  const setShieldResult = useAnalysisStore((s) => s.setShieldResult);
+
+  // Cached pending result during 4.5s analysis animation
+  const pendingResultRef = useRef<VoiceShieldResult | null>(null);
+  const pendingParamsRef = useRef<{
+    file?: File | Blob | null;
+    sampleId?: string | null;
+    fileName?: string | null;
+    duration?: number | null;
+  }>({});
+
+  const [featureStatuses, setFeatureStatuses] = useState<FeatureStatus[]>(() =>
+    Array(9).fill('normal')
+  );
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Cleanup: Reset gradient blob tone to idle on unmount
+  useEffect(() => {
+    return () => {
+      setBlobTone('idle');
+    };
+  }, [setBlobTone]);
+
+  // Synchronize blob tone whenever voiceResult changes
+  useEffect(() => {
+    if (voiceShieldState === 'done' && voiceResult) {
+      setBlobTone(voiceResult.level);
+    } else {
+      setBlobTone('idle');
+    }
+  }, [voiceShieldState, voiceResult, setBlobTone]);
+
+  const handleAnalyze = useCallback(
+    async (data: {
+      file?: File | Blob | null;
+      sampleId?: string | null;
+      fileName?: string | null;
+      duration?: number | null;
+    }) => {
+      setErrorMessage(null);
+      pendingParamsRef.current = data;
+
+      // Determine feature statuses for staggered synapse visualization
+      const sampleId = data.sampleId;
+      const name = (data.fileName || '').toLowerCase();
+      const isHuman = sampleId === 'real_human' || name.includes('human') || name.includes('real');
+      const isAI2 = sampleId === 'patient_support' || name.includes('support') || name.includes('patient');
+
+      if (isHuman) {
+        setFeatureStatuses(Array(9).fill('normal'));
+      } else if (isAI2) {
+        setFeatureStatuses([
+          'suspicious',
+          'anomalous',
+          'anomalous',
+          'suspicious',
+          'suspicious',
+          'anomalous',
+          'suspicious',
+          'suspicious',
+          'anomalous',
+        ]);
+      } else {
+        // AI Deepfake default
+        setFeatureStatuses([
+          'anomalous',
+          'anomalous',
+          'anomalous',
+          'suspicious',
+          'anomalous',
+          'suspicious',
+          'anomalous',
+          'suspicious',
+          'anomalous',
+        ]);
+      }
+
+      setVoiceShieldState('analyzing');
+
+      try {
+        const res = await api.analyzeVoice({
+          file: data.file,
+          sampleId: data.sampleId,
+          fileName: data.fileName,
+        });
+        pendingResultRef.current = res;
+      } catch (err) {
+        console.error('Voice analysis error:', err);
+        setErrorMessage(
+          err instanceof Error
+            ? err.message
+            : 'Unable to complete acoustic forensic analysis. Please verify your connection and try again.'
+        );
+        setVoiceShieldState('error');
+      }
+    },
+    [setVoiceShieldState]
+  );
+
+  const handleAnalysisComplete = useCallback(() => {
+    if (pendingResultRef.current) {
+      const res = pendingResultRef.current;
+      setVoiceResult(res);
+      setShieldResult('voice', res);
+      setVoiceShieldState('done');
+      setBlobTone(res.level);
+    } else if (!errorMessage) {
+      setVoiceShieldState('error');
+      setErrorMessage('Analysis timed out. Please try again.');
+    }
+  }, [errorMessage, setBlobTone, setShieldResult, setVoiceResult, setVoiceShieldState]);
+
+  const handleAnalyzeAnother = useCallback(() => {
+    pendingResultRef.current = null;
+    resetVoiceShield();
+    setBlobTone('idle');
+    setErrorMessage(null);
+  }, [resetVoiceShield, setBlobTone]);
+
+  const handleRetry = useCallback(() => {
+    if (pendingParamsRef.current) {
+      handleAnalyze(pendingParamsRef.current);
+    } else {
+      handleAnalyzeAnother();
+    }
+  }, [handleAnalyze, handleAnalyzeAnother]);
+
   return (
-    <div className="w-full max-w-[1400px] mx-auto px-6 sm:px-10 md:px-14 py-16 sm:py-24 min-h-[calc(100vh-220px)] flex flex-col justify-between">
-      <div>
-        <div className="flex items-center gap-3 mb-6">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#3B5BFF] animate-pulse" />
-          <MonoLabel color="accent" className="text-sm font-semibold tracking-widest">
-            COMING NEXT
-          </MonoLabel>
-        </div>
+    <div className="w-full max-w-[1400px] mx-auto px-6 sm:px-10 md:px-14 py-10 sm:py-16 flex flex-col">
+      {/* 1) Header */}
+      <VoiceShieldHeader />
 
-        <h1 className="text-5xl sm:text-7xl md:text-8xl font-light font-['Inter_Tight'] tracking-tight text-[#0A0A0A] mb-8">
-          Voice Shield
-        </h1>
-
-        <p className="text-lg sm:text-xl text-[#6B6F76] font-light max-w-2xl leading-relaxed mb-12">
-          Deepfake audio detection engineered for patient and healthcare security. Supports live microphone recording, audio uploads, 9 spectral acoustic features, Neural Synapse Visualizer, and AI forensics reports.
-        </p>
-
-        <div className="p-8 rounded-[20px] bg-white/80 border border-[#0A0A0A] max-w-xl backdrop-blur-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <Mic className="w-5 h-5 text-[#3B5BFF]" />
-            <MonoLabel color="ink" className="text-xs font-semibold">
-              SPECIFICATION // VOICE·SHIELD
-            </MonoLabel>
-          </div>
-          <div className="space-y-3 font-mono-label text-xs text-[#6B6F76]">
-            <div className="flex justify-between border-b border-[#0A0A0A]/10 pb-2">
-              <span>SPECTRAL VECTORS</span>
-              <span className="text-[#0A0A0A]">09 REAL-TIME ACOUSTIC METRICS</span>
-            </div>
-            <div className="flex justify-between border-b border-[#0A0A0A]/10 pb-2">
-              <span>VISUALIZER</span>
-              <span className="text-[#0A0A0A]">NEURAL SYNAPSE CANVAS</span>
-            </div>
-            <div className="flex justify-between">
-              <span>REPORTING</span>
-              <span className="text-[#3B5BFF]">AI FORENSICS DOSSIER</span>
+      {/* 2) Error State */}
+      {voiceShieldState === 'error' && (
+        <div
+          role="alert"
+          className="p-6 rounded-[20px] bg-[#EF4444]/10 border border-[#EF4444]/30 my-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+        >
+          <div className="flex items-center gap-3">
+            <AlertCircle className="w-6 h-6 text-[#DC2626] shrink-0" />
+            <div>
+              <div className="font-mono text-xs font-bold text-[#DC2626] uppercase">
+                ACOUSTIC INTAKE ERROR
+              </div>
+              <p className="text-sm text-[#0A0A0A] font-light mt-0.5">
+                {errorMessage || 'Failed to complete audio threat verification.'}
+              </p>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div className="border-t border-[#0A0A0A] pt-8 mt-12 flex justify-between items-center">
-        <MonoLabel color="muted">PREPARED FOR STAGE 4 VOICE INTAKE</MonoLabel>
-        <ArrowLink to="/dashboard" size="md">
-          GO TO DASHBOARD
-        </ArrowLink>
+          <button
+            onClick={handleRetry}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0A0A0A] text-white text-xs font-mono font-semibold tracking-wider hover:bg-[#202020] transition-colors"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>RETRY</span>
+          </button>
+        </div>
+      )}
+
+      {/* 3) Input Section (Visible when idle or after error) */}
+      {(voiceShieldState === 'idle' || voiceShieldState === 'error') && (
+        <VoiceInputSection onAnalyze={handleAnalyze} />
+      )}
+
+      {/* 4) Analysis View (Replaces input area while analyzing) */}
+      {voiceShieldState === 'analyzing' && (
+        <VoiceAnalysisView
+          featureStatuses={featureStatuses}
+          onAnalysisComplete={handleAnalysisComplete}
+        />
+      )}
+
+      {/* 5) Result View (Appears after analysis completes) */}
+      {voiceShieldState === 'done' && voiceResult && (
+        <div className="w-full space-y-2 animate-fade-in" aria-live="polite">
+          {/* a) Verdict with Synthetic Voice Risk */}
+          <VoiceResultVerdict
+            result={voiceResult}
+            onAnalyzeAnother={handleAnalyzeAnother}
+          />
+
+          {/* b) Waveform + Anomaly Timeline */}
+          <VoiceWaveformTimeline
+            peaks={voiceResult.peaks}
+            duration={voiceResult.duration_sec}
+            anomalies={voiceResult.anomalies}
+          />
+
+          {/* c) Nine Features Table */}
+          <VoiceFeaturesTable features={voiceResult.features} />
+
+          {/* d) Neural Synapse Map Card (compact post-analysis frame) */}
+          <VoiceSynapseMapCard
+            featureStatuses={voiceResult.features.map((f) => f.status)}
+          />
+
+          {/* e) AI Forensics Report with English / Hinglish toggle */}
+          <VoiceAiReport ai={voiceResult.ai} />
+
+          {/* f) Safe Next Step Card & Cybercrime Helpline */}
+          <VoiceSafeNextStep result={voiceResult} />
+        </div>
+      )}
+
+      {/* Footer hairlines */}
+      <div className="border-t border-[#0A0A0A]/20 pt-8 mt-12 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <MonoLabel color="muted">
+          SHIELD 02 // DEEPFAKE AUDIO DETECTION · HIGH-RISK CALL PROTECTION
+        </MonoLabel>
+        <span className="font-mono text-xs text-[#6B6F76]">
+          MEDITRUST AI HEALTHCARE SECURITY SUITE
+        </span>
       </div>
     </div>
   );
-};
+});
+
+VoiceShieldPage.displayName = 'VoiceShieldPage';
+export default VoiceShieldPage;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { MonoLabel } from '../ui/MonoLabel';
@@ -6,17 +6,19 @@ import { HairlineRow } from '../ui/HairlineRow';
 import { ArrowLink } from '../ui/ArrowLink';
 import { BigNumber } from '../ui/BigNumber';
 import { RevealText } from '../ui/RevealText';
+import { isLowTierHardware } from '../../utils/perfGuard';
 
-export const HeroSection: React.FC = () => {
+export const HeroSection: React.FC = React.memo(() => {
   const navigate = useNavigate();
   const prefersReduced = useReducedMotion();
+  const isLowTier = isLowTierHardware();
 
-  const handleScrollDown = () => {
+  const handleScrollDown = useCallback(() => {
     const shieldSection = document.getElementById('shields-showcase');
     if (shieldSection) {
       shieldSection.scrollIntoView({ behavior: 'smooth' });
     }
-  };
+  }, []);
 
   return (
     <section className="relative min-h-[calc(100vh-80px)] flex flex-col justify-between pt-8 sm:pt-14 pb-8 overflow-hidden">
@@ -26,10 +28,10 @@ export const HeroSection: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           className="mb-6 sm:mb-8 flex items-center gap-3"
         >
-          <span className="w-2 h-2 rounded-full bg-[#0037FF] animate-ping opacity-75" />
+          <span className="w-2 h-2 rounded-full bg-[#0037FF] opacity-75" />
           <MonoLabel color="muted" className="text-xs sm:text-sm font-semibold tracking-[0.12em]">
             UNIFIED DIGITAL SECURITY
           </MonoLabel>
@@ -46,9 +48,9 @@ export const HeroSection: React.FC = () => {
 
         {/* Muted Subtitle under Heading */}
         <motion.p
-          initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 15 }}
+          initial={prefersReduced || isLowTier ? { opacity: 1 } : { opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.35 }}
+          transition={{ duration: 0.7, delay: 0.3 }}
           className="text-lg sm:text-[20px] text-[#6B6F76] font-['Inter_Tight'] font-normal max-w-2xl leading-relaxed mb-10 sm:mb-14"
         >
           Unified digital security and multi-vector threat protection for healthcare.
@@ -57,10 +59,10 @@ export const HeroSection: React.FC = () => {
 
       {/* Action Rows: Full width hairlines */}
       <motion.div
-        initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 20 }}
+        initial={prefersReduced || isLowTier ? { opacity: 1 } : { opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full border-t border-b border-[#0A0A0A] bg-white/40 backdrop-blur-[2px]"
+        transition={{ duration: 0.7, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full border-t border-b border-[#0A0A0A] bg-[#FFFFFF]/75"
       >
         <div className="w-full max-w-[1400px] mx-auto">
           {/* Row 1: Open Dashboard */}
@@ -103,9 +105,9 @@ export const HeroSection: React.FC = () => {
 
       {/* Bottom stats strip & scroll indicator */}
       <motion.div
-        initial={prefersReduced ? { opacity: 1 } : { opacity: 0 }}
+        initial={prefersReduced || isLowTier ? { opacity: 1 } : { opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, delay: 0.75 }}
+        transition={{ duration: 0.7, delay: 0.6 }}
         className="w-full max-w-[1400px] mx-auto px-6 sm:px-10 md:px-14 pt-8 sm:pt-10"
       >
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-0 border-y sm:border-y-0 sm:border-t border-[#0A0A0A] py-6 sm:py-0">
@@ -163,9 +165,9 @@ export const HeroSection: React.FC = () => {
             <span>SCROLL</span>
             <div className="w-[1px] h-6 bg-[#0A0A0A]/30 relative overflow-hidden">
               <motion.div
-                className="w-full h-1/2 bg-[#0037FF]"
+                className="w-full h-1/2 bg-[#0037FF] will-change-transform"
                 animate={
-                  prefersReduced
+                  prefersReduced || isLowTier
                     ? {}
                     : {
                         y: [-12, 24],
@@ -183,4 +185,6 @@ export const HeroSection: React.FC = () => {
       </motion.div>
     </section>
   );
-};
+});
+
+HeroSection.displayName = 'HeroSection';

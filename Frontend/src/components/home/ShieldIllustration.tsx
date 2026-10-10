@@ -1,27 +1,50 @@
-import React from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
 import type { ShieldId } from '../../types/analysis';
+import { isLowPowerMode } from '../../utils/perfGuard';
 
 export interface ShieldIllustrationProps {
   shield: ShieldId;
   accentColor: string;
 }
 
-export const ShieldIllustration: React.FC<ShieldIllustrationProps> = ({
+const VOICE_BARS = [18, 42, 68, 88, 54, 96, 72, 34, 60, 84, 48, 22];
+
+export const ShieldIllustration: React.FC<ShieldIllustrationProps> = React.memo(({
   shield,
   accentColor,
 }) => {
-  const prefersReduced = useReducedMotion();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isLowPower] = useState(() => isLowPowerMode());
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { rootMargin: '50px 0px 50px 0px', threshold: 0.1 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const shouldAnimate = isVisible && !isLowPower;
 
   if (shield === 'voice') {
-    const barHeights = [18, 42, 68, 88, 54, 96, 72, 34, 60, 84, 48, 22];
     return (
-      <div className="relative w-full h-full flex items-center justify-center">
+      <div ref={containerRef} className="relative w-full h-full flex items-center justify-center">
+        {/* Soft radial glow without blur filters */}
         <div
-          className="absolute w-48 h-48 rounded-full opacity-20 blur-xl pointer-events-none"
-          style={{ backgroundColor: accentColor }}
+          className="absolute w-48 h-48 rounded-full pointer-events-none"
+          style={{
+            background: `radial-gradient(circle, ${accentColor}33 0%, ${accentColor}11 40%, transparent 70%)`,
+          }}
         />
-        
+
         <svg
           viewBox="0 0 320 200"
           className="w-full max-w-[280px] h-[180px] overflow-visible"
@@ -39,11 +62,12 @@ export const ShieldIllustration: React.FC<ShieldIllustrationProps> = ({
             strokeDasharray="4 4"
           />
 
-          {barHeights.map((h, i) => {
+          {VOICE_BARS.map((h, i) => {
             const x = 50 + i * 19;
+            const hasBeacon = i === 3 || i === 5 || i === 9;
             return (
-              <motion.g key={i}>
-                <motion.line
+              <g key={i}>
+                <line
                   x1={x}
                   y1={100 - h / 2}
                   x2={x}
@@ -51,43 +75,26 @@ export const ShieldIllustration: React.FC<ShieldIllustrationProps> = ({
                   stroke="#0A0A0A"
                   strokeWidth="3.5"
                   strokeLinecap="round"
-                  animate={
-                    prefersReduced
-                      ? {}
-                      : {
-                          y1: [100 - h / 2, 100 - (h * 0.4) / 2, 100 - (h * 1.3) / 2, 100 - h / 2],
-                          y2: [100 + h / 2, 100 + (h * 0.4) / 2, 100 + (h * 1.3) / 2, 100 + h / 2],
-                        }
-                  }
-                  transition={{
-                    duration: 1.8,
-                    repeat: Infinity,
-                    delay: i * 0.12,
-                    ease: 'easeInOut',
+                  style={{
+                    transformOrigin: `${x}px 100px`,
+                    animation: shouldAnimate ? `voice-bar-bounce 1.8s ease-in-out infinite ${i * 0.12}s` : 'none',
+                    willChange: shouldAnimate ? 'transform' : 'auto',
                   }}
                 />
-                {(i === 3 || i === 5 || i === 9) && (
-                  <motion.circle
+                {hasBeacon && (
+                  <circle
                     cx={x}
                     cy={100 - h / 2 - 6}
                     r="2.5"
                     fill={accentColor}
-                    animate={
-                      prefersReduced
-                        ? {}
-                        : {
-                            scale: [1, 1.4, 1],
-                            opacity: [0.7, 1, 0.7],
-                          }
-                    }
-                    transition={{
-                      duration: 1.8,
-                      repeat: Infinity,
-                      delay: i * 0.12,
+                    style={{
+                      transformOrigin: `${x}px ${100 - h / 2 - 6}px`,
+                      animation: shouldAnimate ? `beacon-dot 1.8s ease-in-out infinite ${i * 0.12}s` : 'none',
+                      willChange: shouldAnimate ? 'transform, opacity' : 'auto',
                     }}
                   />
                 )}
-              </motion.g>
+              </g>
             );
           })}
         </svg>
@@ -96,12 +103,14 @@ export const ShieldIllustration: React.FC<ShieldIllustrationProps> = ({
   }
 
   if (shield === 'job') {
-    // PDF / Job Offer Sheet with scanning line, chat bubble and warning triangle
     return (
-      <div className="relative w-full h-full flex items-center justify-center">
+      <div ref={containerRef} className="relative w-full h-full flex items-center justify-center">
+        {/* Soft radial glow without blur filters */}
         <div
-          className="absolute w-48 h-48 rounded-full opacity-20 blur-xl pointer-events-none"
-          style={{ backgroundColor: accentColor }}
+          className="absolute w-48 h-48 rounded-full pointer-events-none"
+          style={{
+            background: `radial-gradient(circle, ${accentColor}33 0%, ${accentColor}11 40%, transparent 70%)`,
+          }}
         />
 
         <svg
@@ -128,44 +137,26 @@ export const ShieldIllustration: React.FC<ShieldIllustrationProps> = ({
             <line x1="80" y1="124" x2="140" y2="124" stroke="#0A0A0A" strokeWidth="2" strokeLinecap="round" strokeOpacity="0.4" />
             <line x1="80" y1="142" x2="160" y2="142" stroke="#0A0A0A" strokeWidth="2" strokeLinecap="round" strokeOpacity="0.4" />
 
-            {/* Animated Laser Scanning Line moving down the document */}
-            <motion.line
+            {/* Laser Scanning Line moving down the document via CSS transform */}
+            <line
               x1="65"
               y1="40"
               x2="185"
               y2="40"
               stroke={accentColor}
               strokeWidth="2.5"
-              animate={
-                prefersReduced
-                  ? {}
-                  : {
-                      y1: [35, 165, 35],
-                      y2: [35, 165, 35],
-                      opacity: [0.3, 1, 0.3],
-                    }
-              }
-              transition={{
-                duration: 3.2,
-                repeat: Infinity,
-                ease: 'easeInOut',
+              style={{
+                animation: shouldAnimate ? 'laser-scan 3.2s ease-in-out infinite' : 'none',
+                willChange: shouldAnimate ? 'transform, opacity' : 'auto',
               }}
             />
           </g>
 
           {/* Floating WhatsApp/Recruitment Chat Bubble with Warning Triangle */}
-          <motion.g
-            animate={
-              prefersReduced
-                ? {}
-                : {
-                    y: [0, -6, 0],
-                  }
-            }
-            transition={{
-              duration: 2.8,
-              repeat: Infinity,
-              ease: 'easeInOut',
+          <g
+            style={{
+              animation: shouldAnimate ? 'chat-float 2.8s ease-in-out infinite' : 'none',
+              willChange: shouldAnimate ? 'transform' : 'auto',
             }}
           >
             {/* Chat bubble background */}
@@ -192,7 +183,7 @@ export const ShieldIllustration: React.FC<ShieldIllustrationProps> = ({
             />
             <circle cx="235" cy="132" r="1.2" fill={accentColor} />
             <line x1="235" y1="124" x2="235" y2="128" stroke={accentColor} strokeWidth="1.8" strokeLinecap="round" />
-          </motion.g>
+          </g>
         </svg>
       </div>
     );
@@ -200,10 +191,13 @@ export const ShieldIllustration: React.FC<ShieldIllustrationProps> = ({
 
   // sim: phone outline with pulsing signal rings
   return (
-    <div className="relative w-full h-full flex items-center justify-center">
+    <div ref={containerRef} className="relative w-full h-full flex items-center justify-center">
+      {/* Soft radial glow without blur filters */}
       <div
-        className="absolute w-48 h-48 rounded-full opacity-20 blur-xl pointer-events-none"
-        style={{ backgroundColor: accentColor }}
+        className="absolute w-48 h-48 rounded-full pointer-events-none"
+        style={{
+          background: `radial-gradient(circle, ${accentColor}33 0%, ${accentColor}11 40%, transparent 70%)`,
+        }}
       />
 
       <svg
@@ -213,7 +207,7 @@ export const ShieldIllustration: React.FC<ShieldIllustrationProps> = ({
         xmlns="http://www.w3.org/2000/svg"
       >
         {[1, 2, 3].map((ring) => (
-          <motion.circle
+          <circle
             key={ring}
             cx="160"
             cy="110"
@@ -223,21 +217,11 @@ export const ShieldIllustration: React.FC<ShieldIllustrationProps> = ({
             strokeOpacity="0.4"
             fill="none"
             strokeDasharray="4 4"
-            animate={
-              prefersReduced
-                ? {}
-                : {
-                    scale: [0.95, 1.08, 0.95],
-                    opacity: [0.2, 0.7, 0.2],
-                  }
-            }
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              delay: ring * 0.4,
-              ease: 'easeInOut',
+            style={{
+              transformOrigin: '160px 110px',
+              animation: shouldAnimate ? `pulse-ring 3s ease-in-out infinite ${ring * 0.4}s` : 'none',
+              willChange: shouldAnimate ? 'transform, opacity' : 'auto',
             }}
-            style={{ transformOrigin: '160px 110px' }}
           />
         ))}
 
@@ -265,4 +249,6 @@ export const ShieldIllustration: React.FC<ShieldIllustrationProps> = ({
       </svg>
     </div>
   );
-};
+});
+
+ShieldIllustration.displayName = 'ShieldIllustration';

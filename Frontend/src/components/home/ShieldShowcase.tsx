@@ -7,6 +7,7 @@ import { HairlineRow } from '../ui/HairlineRow';
 import { ArrowLink } from '../ui/ArrowLink';
 import { BigNumber } from '../ui/BigNumber';
 import { ShieldIllustration } from './ShieldIllustration';
+import { isLowTierHardware } from '../../utils/perfGuard';
 
 interface ShieldData {
   id: ShieldId;
@@ -79,19 +80,20 @@ const shields: ShieldData[] = [
   },
 ];
 
-export const ShieldShowcase: React.FC = () => {
+export const ShieldShowcase: React.FC = React.memo(() => {
   const navigate = useNavigate();
   const prefersReduced = useReducedMotion();
+  const isLowTier = isLowTierHardware();
 
   return (
     <section id="shields-showcase" className="relative w-full py-20 sm:py-28 overflow-hidden">
       {/* Section Header */}
       <div className="w-full max-w-[1400px] mx-auto px-6 sm:px-10 md:px-14 mb-16 sm:mb-24">
         <motion.div
-          initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 20 }}
+          initial={prefersReduced || isLowTier ? { opacity: 1 } : { opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.5 }}
           className="flex flex-col gap-3"
         >
           <div className="flex items-center gap-3">
@@ -115,15 +117,15 @@ export const ShieldShowcase: React.FC = () => {
             <motion.div
               id={shield.id}
               key={shield.id}
-              initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 40 }}
+              initial={prefersReduced || isLowTier ? { opacity: 1 } : { opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.7, delay: 0.1, ease: 'easeOut' }}
+              transition={{ duration: 0.6, delay: 0.08, ease: 'easeOut' }}
               className="scroll-mt-28 grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-stretch"
             >
               {/* Illustration Card */}
               <div
-                className={`relative bg-white rounded-[20px] border border-[#0A0A0A] p-8 sm:p-10 flex flex-col justify-between min-h-[380px] sm:min-h-[440px] shadow-sm overflow-hidden ${
+                className={`relative bg-white rounded-[20px] border border-[#0A0A0A] p-8 sm:p-10 flex flex-col justify-between min-h-[380px] sm:min-h-[440px] overflow-hidden ${
                   isEven ? 'lg:order-2' : 'lg:order-1'
                 }`}
               >
@@ -133,7 +135,7 @@ export const ShieldShowcase: React.FC = () => {
                   </MonoLabel>
                   <div className="flex items-center gap-2">
                     <span
-                      className="w-3.5 h-3.5 rounded-full shadow-sm"
+                      className="w-3.5 h-3.5 rounded-full"
                       style={{ backgroundColor: shield.dotColor }}
                     />
                   </div>
@@ -155,7 +157,7 @@ export const ShieldShowcase: React.FC = () => {
 
               {/* Info Panel */}
               <div
-                className={`relative rounded-[20px] border border-[#0A0A0A] p-8 sm:p-10 flex flex-col justify-between min-h-[380px] sm:min-h-[440px] backdrop-blur-md ${
+                className={`relative rounded-[20px] border border-[#0A0A0A] p-8 sm:p-10 flex flex-col justify-between min-h-[380px] sm:min-h-[440px] ${
                   isEven ? 'lg:order-1' : 'lg:order-2'
                 }`}
                 style={{ backgroundColor: shield.bgTint }}
@@ -204,7 +206,7 @@ export const ShieldShowcase: React.FC = () => {
                     {shield.badges.map((badge) => (
                       <span
                         key={badge}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/70 border border-[#0A0A0A]/20 text-[10px] font-mono-label text-[#0A0A0A]"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white border border-[#0A0A0A]/20 text-[10px] font-mono-label text-[#0A0A0A]"
                       >
                         <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: shield.dotColor }} />
                         {badge}
@@ -236,4 +238,6 @@ export const ShieldShowcase: React.FC = () => {
       </div>
     </section>
   );
-};
+});
+
+ShieldShowcase.displayName = 'ShieldShowcase';

@@ -103,3 +103,116 @@
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
+
+/* Optimized CSS Keyframe Animations */
+@keyframes blob-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+  }
+  33% {
+    transform: translate3d(30px, -22px, 0) scale(1.04) rotate(3deg);
+  }
+  66% {
+    transform: translate3d(-24px, 18px, 0) scale(0.97) rotate(-3deg);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+  }
+}
+
+.blob-drift-anim {
+  animation: blob-drift 32s ease-in-out infinite;
+}
+
+.animation-paused,
+.animation-paused * {
+  animation-play-state: paused !important;
+}
+
+/* HairlineRow Hover Tint with Pure CSS scaleX Pseudo-Element */
+.hairline-row-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.hairline-row-hover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--hover-accent, rgba(0, 55, 255, 0.06));
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+}
+
+.hairline-row-hover:hover::before {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hairline-row-hover::before {
+    transition: none !important;
+  }
+  .blob-drift-anim {
+    animation: none !important;
+  }
+}
+
+/* SVG Illustration Animations (CSS transform & opacity only) */
+@keyframes laser-scan {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translate3d(0, 125px, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes chat-float {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -6px, 0);
+  }
+}
+
+@keyframes pulse-ring {
+  0%, 100% {
+    transform: scale(0.95);
+    opacity: 0.2;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.7;
+  }
+}
+
+@keyframes voice-bar-bounce {
+  0%, 100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.4);
+  }
+}
+
+@keyframes scan-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+.scan-shimmer-bar {
+  animation: scan-shimmer 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+

@@ -1,6 +1,7 @@
-import React from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import React, { useMemo } from 'react';
+import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import clsx from 'clsx';
+import { isLowTierHardware } from '../../utils/perfGuard';
 
 export interface RevealTextProps {
   children: string | string[];
@@ -12,7 +13,22 @@ export interface RevealTextProps {
   as?: 'h1' | 'h2' | 'h3' | 'h4' | 'p' | 'div' | 'span';
 }
 
-export const RevealText: React.FC<RevealTextProps> = ({
+const lineVariants: Variants = {
+  hidden: {
+    y: '100%',
+    opacity: 0,
+  },
+  visible: (duration: number) => ({
+    y: '0%',
+    opacity: 1,
+    transition: {
+      duration,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  }),
+};
+
+export const RevealText: React.FC<RevealTextProps> = React.memo(({
   children,
   className,
   delay = 0.1,
@@ -22,16 +38,16 @@ export const RevealText: React.FC<RevealTextProps> = ({
   as: Component = 'div',
 }) => {
   const prefersReduced = useReducedMotion();
+  const isLowTier = isLowTierHardware();
 
-  const items: string[] = Array.isArray(children)
-    ? children
-    : splitBy === 'lines'
-    ? children.split('\n')
-    : splitBy === 'words'
-    ? children.split(' ')
-    : [children];
+  const items: string[] = useMemo(() => {
+    if (Array.isArray(children)) return children;
+    if (splitBy === 'lines') return children.split('\n');
+    if (splitBy === 'words') return children.split(' ');
+    return [children];
+  }, [children, splitBy]);
 
-  if (prefersReduced) {
+  if (prefersReduced || isLowTier) {
     return (
       <Component className={className}>
         {items.map((item, idx) => (
@@ -61,26 +77,11 @@ export const RevealText: React.FC<RevealTextProps> = ({
               'overflow-hidden align-top',
               splitBy === 'lines' ? 'block' : 'inline-block mr-[0.25em]'
             )}
-            style={{ perspective: 1000 }}
           >
             <motion.span
-              variants={{
-                hidden: {
-                  y: '105%',
-                  opacity: 0,
-                  rotateX: -10,
-                },
-                visible: {
-                  y: '0%',
-                  opacity: 1,
-                  rotateX: 0,
-                  transition: {
-                    duration,
-                    ease: 'easeOut',
-                  },
-                },
-              }}
-              className="block will-change-transform transform-gpu"
+              custom={duration}
+              variants={lineVariants}
+              className="block will-change-transform"
             >
               {item}
             </motion.span>
@@ -89,4 +90,6 @@ export const RevealText: React.FC<RevealTextProps> = ({
       </motion.span>
     </Component>
   );
-};
+});
+
+RevealText.displayName = 'RevealText';

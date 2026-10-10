@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useInView, useReducedMotion } from 'framer-motion';
+import React, { useEffect, useRef } from 'react';
+import { useInView, useReducedMotion, useMotionValue, animate as fmAnimate } from 'framer-motion';
 import clsx from 'clsx';
+import { isLowTierHardware } from '../../utils/perfGuard';
 
 export interface BigNumberProps {
   value: number | string;
@@ -13,7 +14,20 @@ export interface BigNumberProps {
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'giant';
 }
 
-export const BigNumber: React.FC<BigNumberProps> = ({
+const sizeClasses = {
+  sm: 'text-2xl font-light',
+  md: 'text-4xl font-light',
+  lg: 'text-6xl sm:text-7xl font-light tracking-tight',
+  xl: 'text-7xl sm:text-8xl md:text-9xl font-light tracking-tighter',
+  giant: 'text-8xl sm:text-9xl md:text-[140px] font-[250] tracking-tighter leading-none',
+};
+
+function formatNumber(val: number, padZero: boolean) {
+  if (padZero && val < 10 && val >= 0) return `0${val}`;
+  return `${val}`;
+}
+
+export const BigNumber: React.FC<BigNumberProps> = React.memo(({
   value,
   prefix = '',
   suffix = '',
@@ -23,61 +37,47 @@ export const BigNumber: React.FC<BigNumberProps> = ({
   className,
   size = 'lg',
 }) => {
-  const ref = React.useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true });
+  const containerRef = useRef<HTMLSpanElement>(null);
+  const numberNodeRef = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(containerRef, { once: true, margin: '-80px' });
   const prefersReduced = useReducedMotion();
+  const isLowTier = isLowTierHardware();
+
   const numericTarget = typeof value === 'number' ? value : parseInt(value, 10);
   const isNumeric = !isNaN(numericTarget);
 
-  const [displayValue, setDisplayValue] = useState(
-    animate && isNumeric && !prefersReduced ? 0 : numericTarget
-  );
+  const motionVal = useMotionValue(animate && isNumeric && !prefersReduced && !isLowTier ? 0 : numericTarget);
 
   useEffect(() => {
-    if (!isInView || !animate || !isNumeric || prefersReduced) {
-      if (isNumeric) setDisplayValue(numericTarget);
+    if (!numberNodeRef.current) return;
+
+    if (!isNumeric || !animate || prefersReduced || isLowTier) {
+      numberNodeRef.current.textContent = isNumeric ? formatNumber(numericTarget, padZero) : `${value}`;
       return;
     }
 
-    let startTime: number | null = null;
-    let frameId: number;
+    if (!isInView) return;
 
-    const step = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / (duration * 1000), 1);
-      // Ease out cubic
-      const easedProgress = 1 - Math.pow(1 - progress, 3);
-      const current = Math.round(easedProgress * numericTarget);
-      setDisplayValue(current);
+    const controls = fmAnimate(motionVal, numericTarget, {
+      duration,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate: (latest) => {
+        if (numberNodeRef.current) {
+          numberNodeRef.current.textContent = formatNumber(Math.round(latest), padZero);
+        }
+      },
+    });
 
-      if (progress < 1) {
-        frameId = requestAnimationFrame(step);
-      }
-    };
+    return () => controls.stop();
+  }, [isInView, animate, isNumeric, numericTarget, duration, prefersReduced, isLowTier, value, padZero, motionVal]);
 
-    frameId = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(frameId);
-  }, [isInView, animate, isNumeric, numericTarget, duration, prefersReduced]);
-
-  const formatNumber = (val: number | string) => {
-    if (typeof val === 'number') {
-      if (padZero && val < 10) return `0${val}`;
-      return `${val}`;
-    }
-    return val;
-  };
-
-  const sizeClasses = {
-    sm: 'text-2xl font-light',
-    md: 'text-4xl font-light',
-    lg: 'text-6xl sm:text-7xl font-light tracking-tight',
-    xl: 'text-7xl sm:text-8xl md:text-9xl font-light tracking-tighter',
-    giant: 'text-8xl sm:text-9xl md:text-[140px] font-[250] tracking-tighter leading-none',
-  };
+  const initialRender = isNumeric
+    ? (animate && !prefersReduced && !isLowTier ? formatNumber(0, padZero) : formatNumber(numericTarget, padZero))
+    : `${value}`;
 
   return (
     <span
-      ref={ref}
+      ref={containerRef}
       className={clsx(
         'font-["Inter_Tight"] tabular-nums inline-flex items-baseline text-[#0A0A0A]',
         sizeClasses[size],
@@ -85,8 +85,10 @@ export const BigNumber: React.FC<BigNumberProps> = ({
       )}
     >
       {prefix && <span className="text-muted mr-1 font-mono-label text-sm tracking-normal">{prefix}</span>}
-      <span>{isNumeric ? formatNumber(displayValue) : value}</span>
+      <span ref={numberNodeRef}>{initialRender}</span>
       {suffix && <span className="text-muted ml-1 text-2xl font-light">{suffix}</span>}
     </span>
   );
-};
+});
+
+BigNumber.displayName = 'BigNumber';

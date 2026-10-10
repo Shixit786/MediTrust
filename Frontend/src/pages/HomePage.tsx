@@ -3,7 +3,7 @@ import { HeroSection } from '../components/home/HeroSection';
 import { ShieldShowcase } from '../components/home/ShieldShowcase';
 import { FusionEngineBand } from '../components/home/FusionEngineBand';
 
-export const HomePage: React.FC = () => {
+export const HomePage: React.FC = React.memo(() => {
   return (
     <div className="w-full flex flex-col">
       <HeroSection />
@@ -11,4 +11,6 @@ export const HomePage: React.FC = () => {
       <FusionEngineBand />
     </div>
   );
-};
+});
+
+HomePage.displayName = 'HomePage';

@@ -1,0 +1,139 @@
+{
+  "shield": "voice",
+  "risk": 14,
+  "threat": "Organic Human Voice",
+  "level": "low",
+  "confidence": 0.76,
+  "duration_sec": 22.0,
+  "signals": [
+    {
+      "name": "BREATHING PATTERN",
+      "detail": "Natural thoracic inhalation sounds recorded at organic 3.8s intervals",
+      "severity": "low"
+    },
+    {
+      "name": "PITCH VARIANCE",
+      "detail": "Organic fundamental frequency micro-jitter (14.2 Hz standard deviation)",
+      "severity": "low"
+    },
+    {
+      "name": "SILENCE PURITY",
+      "detail": "Continuous organic room ambient acoustic floor (-54 dB ambient noise)",
+      "severity": "low"
+    },
+    {
+      "name": "MFCC ANOMALY",
+      "detail": "Acoustic formants exhibit authentic physical vocal tract damping",
+      "severity": "low"
+    }
+  ],
+  "features": [
+    {
+      "id": "01",
+      "name": "MFCC ANOMALY",
+      "whatItCatches": "synthetic vocal tract patterns",
+      "value": 0.12,
+      "score": 0.12,
+      "status": "normal",
+      "note": "Acoustic cepstral coefficients follow physiological glottal damping curves."
+    },
+    {
+      "id": "02",
+      "name": "SPECTRAL FLUX CONSISTENCY",
+      "whatItCatches": "unnaturally stable frequency change",
+      "value": 0.18,
+      "score": 0.18,
+      "status": "normal",
+      "note": "Dynamic spectral flux across phoneme boundaries shows natural human variability."
+    },
+    {
+      "id": "03",
+      "name": "SILENCE PURITY",
+      "whatItCatches": "missing organic background noise",
+      "value": 0.15,
+      "score": 0.15,
+      "status": "normal",
+      "note": "Preserved environmental room reverberation and subtle microphone noise floor."
+    },
+    {
+      "id": "04",
+      "name": "HIGH-FREQ FLATNESS",
+      "whatItCatches": "absent fricative chaos (s, f, sh sounds)",
+      "value": 0.22,
+      "score": 0.22,
+      "status": "normal",
+      "note": "Organic stochastic turbulence detected in sibilant and dental consonants."
+    },
+    {
+      "id": "05",
+      "name": "HARMONIC PERFECTION",
+      "whatItCatches": "overly clean vocal harmonics",
+      "value": 0.19,
+      "score": 0.19,
+      "status": "normal",
+      "note": "Natural vocal fold micro-tremors and non-integer harmonic dispersion."
+    },
+    {
+      "id": "06",
+      "name": "ENERGY FLATNESS",
+      "whatItCatches": "robot-flat energy envelope",
+      "value": 0.14,
+      "score": 0.14,
+      "status": "normal",
+      "note": "Wide dynamic range with organic conversational stress and cadence."
+    },
+    {
+      "id": "07",
+      "name": "PITCH VARIANCE",
+      "whatItCatches": "missing natural intonation",
+      "value": 0.16,
+      "score": 0.16,
+      "status": "normal",
+      "note": "Authentic prosodic inflection with fundamental frequency jitter above 14 Hz."
+    },
+    {
+      "id": "08",
+      "name": "ZERO CROSSING RATE",
+      "whatItCatches": "unnatural signal transitions",
+      "value": 0.21,
+      "score": 0.21,
+      "status": "normal",
+      "note": "Smooth organic signal zero-crossings consistent with biological phonation."
+    },
+    {
+      "id": "09",
+      "name": "BREATHING PATTERN",
+      "whatItCatches": "absent or synthetic breathing",
+      "value": 0.08,
+      "score": 0.08,
+      "status": "normal",
+      "note": "Spontaneous biological inhalation and exhalation sounds present throughout speech."
+    }
+  ],
+  "anomalies": [],
+  "peaks": [
+    0.05, 0.12, 0.22, 0.41, 0.58, 0.64, 0.52, 0.38, 0.18, 0.09,
+    0.04, 0.10, 0.28, 0.55, 0.69, 0.72, 0.61, 0.44, 0.25, 0.11,
+    0.05, 0.08, 0.09, 0.14, 0.32, 0.58, 0.71, 0.75, 0.59, 0.39,
+    0.21, 0.12, 0.06, 0.05, 0.15, 0.42, 0.61, 0.68, 0.62, 0.48,
+    0.29, 0.14, 0.06, 0.04, 0.11, 0.35, 0.57, 0.69, 0.73, 0.58,
+    0.39, 0.22, 0.11, 0.06, 0.05, 0.18, 0.45, 0.66, 0.71, 0.57,
+    0.38, 0.21, 0.09, 0.05, 0.04, 0.15, 0.39, 0.61, 0.69, 0.64,
+    0.49, 0.31, 0.15, 0.07, 0.04, 0.12, 0.34, 0.58, 0.69, 0.72,
+    0.59, 0.41, 0.21, 0.09, 0.04, 0.03, 0.13, 0.37, 0.59, 0.68,
+    0.63, 0.46, 0.27, 0.13, 0.06, 0.04, 0.16, 0.42, 0.63, 0.71,
+    0.66, 0.51, 0.32, 0.16, 0.08, 0.05, 0.17, 0.44, 0.65, 0.69,
+    0.56, 0.37, 0.19, 0.08, 0.04, 0.03, 0.11, 0.24, 0.14, 0.05
+  ],
+  "ai": {
+    "summary_en": "Acoustic examination reveals organic glottal micro-tremors, natural fricative chaos, and physiological inhalation cycles consistent with authentic human vocal cord actuation. No strong synthetic cues found.",
+    "summary_hi": "Is voice recording mein kudarati insani aawaaz ke lakshan mile hain. Koi mukhya deepfake sanket nahi dikha, lekin niji jankari hamesha savdhani se verify karein.",
+    "why_matters": "Authentic clinical dialogue exhibits natural cadence, acoustic room reverberation, and spontaneous breathing rhythms.",
+    "patterns": [
+      "ORGANIC F0 JITTER",
+      "PHYSIOLOGICAL INHALATION",
+      "NATURAL ACOUSTIC ROOM FLOOR"
+    ],
+    "confidence": 0.76
+  }
+}

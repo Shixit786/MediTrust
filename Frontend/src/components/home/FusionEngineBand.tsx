@@ -5,6 +5,7 @@ import { MonoLabel } from '../ui/MonoLabel';
 import { ArrowLink } from '../ui/ArrowLink';
 import { HairlineRow } from '../ui/HairlineRow';
 import { ArrowRight, Cpu, Layers } from 'lucide-react';
+import { isLowTierHardware } from '../../utils/perfGuard';
 
 const timelineSteps = [
   { name: 'VOICE SHIELD', sub: 'Deepfake & speech forensics', color: '#3B5BFF' },
@@ -19,19 +20,20 @@ const demoSequenceSteps = [
   { step: '04', title: 'FUSION ENGINE', desc: 'Attack chain synthesis' },
 ];
 
-export const FusionEngineBand: React.FC = () => {
+export const FusionEngineBand: React.FC = React.memo(() => {
   const navigate = useNavigate();
   const prefersReduced = useReducedMotion();
+  const isLowTier = isLowTierHardware();
 
   return (
-    <section className="relative w-full border-t border-b border-[#0A0A0A] bg-white/60 backdrop-blur-md py-20 sm:py-28 overflow-hidden">
+    <section className="relative w-full border-t border-b border-[#0A0A0A] bg-[#FFFFFF]/85 py-20 sm:py-28 overflow-hidden">
       <div className="w-full max-w-[1400px] mx-auto px-6 sm:px-10 md:px-14">
         {/* Top Header */}
         <motion.div
-          initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 20 }}
+          initial={prefersReduced || isLowTier ? { opacity: 1 } : { opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.5 }}
           className="flex flex-col gap-4 mb-16"
         >
           <div className="flex items-center gap-3">
@@ -52,11 +54,11 @@ export const FusionEngineBand: React.FC = () => {
 
         {/* Dotted Horizontal Timeline with 3 Converging Dots */}
         <motion.div
-          initial={prefersReduced ? { opacity: 1 } : { opacity: 0, scale: 0.98 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative bg-white rounded-[20px] border border-[#0A0A0A] p-8 sm:p-12 mb-12 shadow-sm overflow-hidden"
+          initial={prefersReduced || isLowTier ? { opacity: 1 } : { opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="relative bg-white rounded-[20px] border border-[#0A0A0A] p-8 sm:p-12 mb-12 overflow-hidden"
         >
           {/* Timeline Label */}
           <div className="flex items-center justify-between border-b border-[#0A0A0A]/10 pb-4 mb-10">
@@ -75,35 +77,18 @@ export const FusionEngineBand: React.FC = () => {
               {timelineSteps.map((step, idx) => (
                 <div key={step.name} className="flex flex-col items-start md:items-center text-left md:text-center group">
                   <motion.div
-                    initial={prefersReduced ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
-                    whileInView={{ scale: 1, opacity: 1 }}
-                    viewport={{ once: true }}
+                    initial={prefersReduced || isLowTier ? { opacity: 1 } : { opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true, margin: '-80px' }}
                     transition={{
-                      duration: 0.5,
-                      delay: 0.3 + idx * 0.25,
-                      type: 'spring',
-                      stiffness: 300,
+                      duration: 0.4,
+                      delay: 0.15 + idx * 0.15,
                     }}
-                    className="relative w-14 h-14 rounded-full bg-white border border-[#0A0A0A] flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform"
+                    className="relative w-14 h-14 rounded-full bg-white border border-[#0A0A0A] flex items-center justify-center mb-4 transition-transform group-hover:scale-105"
                   >
-                    <motion.div
+                    <div
                       className="w-5 h-5 rounded-full"
                       style={{ backgroundColor: step.color }}
-                      animate={
-                        prefersReduced
-                          ? {}
-                          : {
-                              boxShadow: [
-                                `0 0 0 0px ${step.color}40`,
-                                `0 0 0 8px ${step.color}00`,
-                              ],
-                            }
-                      }
-                      transition={{
-                        repeat: Infinity,
-                        duration: 2,
-                        delay: idx * 0.4,
-                      }}
                     />
                   </motion.div>
 
@@ -117,34 +102,18 @@ export const FusionEngineBand: React.FC = () => {
               {/* Converged Final Engine Node */}
               <div className="flex flex-col items-start md:items-center text-left md:text-center mt-4 md:mt-0">
                 <motion.div
-                  initial={prefersReduced ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
-                  whileInView={{ scale: 1, opacity: 1 }}
-                  viewport={{ once: true }}
+                  initial={prefersReduced || isLowTier ? { opacity: 1 } : { opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true, margin: '-80px' }}
                   transition={{
-                    duration: 0.6,
-                    delay: 1.1,
-                    type: 'spring',
-                    stiffness: 250,
+                    duration: 0.5,
+                    delay: 0.6,
                   }}
-                  className="relative w-16 h-16 rounded-full bg-[#0037FF] text-white flex items-center justify-center mb-4 shadow-lg ring-4 ring-[#0037FF]/20"
+                  className="relative w-16 h-16 rounded-full bg-[#0037FF] text-white flex items-center justify-center mb-4 ring-4 ring-[#0037FF]/20"
                 >
-                  <motion.div
-                    className="w-full h-full rounded-full flex items-center justify-center"
-                    animate={
-                      prefersReduced
-                        ? {}
-                        : {
-                            scale: [1, 1.1, 1],
-                          }
-                    }
-                    transition={{
-                      repeat: Infinity,
-                      duration: 2.5,
-                      ease: 'easeInOut',
-                    }}
-                  >
+                  <div className="w-full h-full rounded-full flex items-center justify-center">
                     <ArrowRight className="w-6 h-6 text-white" />
-                  </motion.div>
+                  </div>
                 </motion.div>
 
                 <MonoLabel color="accent" className="text-xs font-bold mb-1">
@@ -193,7 +162,7 @@ export const FusionEngineBand: React.FC = () => {
         </motion.div>
 
         {/* Demo Sequence 4 Steps Strip */}
-        <div className="mb-12 bg-white/80 rounded-[20px] border border-[#0A0A0A] p-6 backdrop-blur-sm">
+        <div className="mb-12 bg-white rounded-[20px] border border-[#0A0A0A] p-6">
           <div className="flex items-center justify-between mb-4 border-b border-[#0A0A0A]/10 pb-3">
             <MonoLabel color="subtle">CORRELATION WORKFLOW PREVIEW</MonoLabel>
             <MonoLabel color="accent">4-PHASE SIMULATION</MonoLabel>
@@ -240,4 +209,6 @@ export const FusionEngineBand: React.FC = () => {
       </div>
     </section>
   );
-};
+});
+
+FusionEngineBand.displayName = 'FusionEngineBand';

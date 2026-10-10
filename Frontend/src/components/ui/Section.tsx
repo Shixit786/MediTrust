@@ -10,7 +10,7 @@ export interface SectionProps extends React.HTMLAttributes<HTMLElement> {
   fullWidth?: boolean;
 }
 
-export const Section: React.FC<SectionProps> = ({
+export const Section: React.FC<SectionProps> = React.memo(({
   children,
   className,
   containerClassName,
@@ -39,4 +39,6 @@ export const Section: React.FC<SectionProps> = ({
       )}
     </Component>
   );
-};
+});
+
+Section.displayName = 'Section';

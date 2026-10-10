@@ -3,12 +3,12 @@ import { MonoLabel } from '../components/ui/MonoLabel';
 import { ArrowLink } from '../components/ui/ArrowLink';
 import { HardDrive } from 'lucide-react';
 
-export const HistoryPage: React.FC = () => {
+export const HistoryPage: React.FC = React.memo(() => {
   return (
     <div className="w-full max-w-[1400px] mx-auto px-6 sm:px-10 md:px-14 py-16 sm:py-24 min-h-[calc(100vh-220px)] flex flex-col justify-between">
       <div>
         <div className="flex items-center gap-3 mb-6">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#0037FF] animate-pulse" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#0037FF]" />
           <MonoLabel color="accent" className="text-sm font-semibold tracking-widest">
             COMING NEXT
           </MonoLabel>
@@ -22,7 +22,7 @@ export const HistoryPage: React.FC = () => {
           Local browser-persisted historical threat logs, audit trails, exportable forensic bundles, and previous multi-vector incident comparisons will be available here.
         </p>
 
-        <div className="p-8 rounded-[20px] bg-white/80 border border-[#0A0A0A] max-w-xl backdrop-blur-sm">
+        <div className="p-8 rounded-[20px] bg-white border border-[#0A0A0A] max-w-xl">
           <div className="flex items-center gap-3 mb-4">
             <HardDrive className="w-5 h-5 text-[#0037FF]" />
             <MonoLabel color="ink" className="text-xs font-semibold">
@@ -54,4 +54,6 @@ export const HistoryPage: React.FC = () => {
       </div>
     </div>
   );
-};
+});
+
+HistoryPage.displayName = 'HistoryPage';
