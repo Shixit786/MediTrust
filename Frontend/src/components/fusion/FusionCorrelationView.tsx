@@ -5,8 +5,11 @@ import { isReducedMotion, isLowTierHardware } from '../../utils/perfGuard';
 
 export const FusionCorrelationView: React.FC = React.memo(() => {
   const shieldResults = useAnalysisStore((s) => s.shieldResults);
-  const [phase, setPhase] = useState<number>(0);
-  const [statusText, setStatusText] = useState<string>('COLLECTING SIGNALS...');
+  const isReduced = isReducedMotion() || isLowTierHardware();
+  const [phase, setPhase] = useState<number>(() => (isReduced ? 2 : 0));
+  const [statusText, setStatusText] = useState<string>(() =>
+    isReduced ? 'BUILDING ATTACK CHAIN...' : 'COLLECTING SIGNALS...'
+  );
   const timeoutsRef = useRef<number[]>([]);
 
   const hasJob = !!shieldResults.job;
@@ -23,10 +26,7 @@ export const FusionCorrelationView: React.FC = React.memo(() => {
   const showOtpPath = jobHigh && simHigh;
 
   useEffect(() => {
-    const reduced = isReducedMotion() || isLowTierHardware();
-    if (reduced) {
-      setPhase(2);
-      setStatusText('BUILDING ATTACK CHAIN...');
+    if (isReduced) {
       return;
     }
 
@@ -46,7 +46,7 @@ export const FusionCorrelationView: React.FC = React.memo(() => {
       timeoutsRef.current.forEach((t) => clearTimeout(t));
       timeoutsRef.current = [];
     };
-  }, []);
+  }, [isReduced]);
 
   return (
     <div

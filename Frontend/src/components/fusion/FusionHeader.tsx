@@ -39,7 +39,7 @@ export const FusionHeader: React.FC<FusionHeaderProps> = React.memo(({ showBackT
 
       {/* Main Title */}
       <h1 className="text-5xl sm:text-7xl md:text-8xl font-light font-['Inter_Tight'] tracking-tight text-[#0A0A0A] leading-none">
-        <RevealText text="Fusion Engine" delay={0.05} />
+        <RevealText delay={0.05}>Fusion Engine</RevealText>
       </h1>
 
       {/* Editorial Subtitle */}
