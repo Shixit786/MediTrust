@@ -10,6 +10,8 @@ import type {
   VoiceShieldResult,
   VoiceShieldStatus,
   VoiceInputData,
+  CarrierInfo,
+  SimGuardStatus,
 } from '../types/analysis';
 
 export type ScanStatus = 'idle' | 'scanning' | 'completed' | 'error';
@@ -43,11 +45,18 @@ export interface AnalysisState {
   voiceShieldState: VoiceShieldStatus;
   voiceResult: VoiceShieldResult | null;
 
+  // SIM Guard Dedicated State
+  simNumber: string | null;
+  simStatus: SimGuardStatus;
+  simScore: number;
+  carrier: CarrierInfo | null;
+
   // Actions
   setVoiceFile: (file: File | null) => void;
   setJobMessage: (message: string) => void;
   setJobPdf: (file: File | null) => void;
   setSimEvents: (events: string[]) => void;
+  addSimEvent: (event: string) => void;
   setShieldResult: (shieldId: ShieldId, result: ShieldResult) => void;
   setShieldStatus: (shieldId: ShieldId, status: ShieldCardStatus) => void;
   setFusionResult: (result: FusionResult | null) => void;
@@ -66,10 +75,19 @@ export interface AnalysisState {
   setVoiceShieldState: (state: VoiceShieldStatus) => void;
   setVoiceResult: (result: VoiceShieldResult | null) => void;
 
+  // SIM Guard Actions
+  setSimNumber: (simNumber: string | null) => void;
+  setSimStatus: (simStatus: SimGuardStatus) => void;
+  setSimScore: (simScore: number) => void;
+  setCarrier: (carrier: CarrierInfo | null) => void;
+
   reset: () => void;
   resetDemo: () => void;
   resetJobShield: () => void;
   resetVoiceShield: () => void;
+  resetSimGuard: () => void;
+  clearAllShields: () => void;
+  setShieldResultsMap: (results: Partial<Record<ShieldId, ShieldResult>>) => void;
 }
 
 const initialShieldStatus: Record<ShieldId, ShieldCardStatus> = {
@@ -110,6 +128,11 @@ const initialState = {
   voiceInput: initialVoiceInput,
   voiceShieldState: 'idle' as VoiceShieldStatus,
   voiceResult: null,
+
+  simNumber: null as string | null,
+  simStatus: 'idle' as SimGuardStatus,
+  simScore: 0,
+  carrier: null as CarrierInfo | null,
 };
 
 export const useAnalysisStore = create<AnalysisState>((set) => ({
@@ -177,6 +200,15 @@ export const useAnalysisStore = create<AnalysisState>((set) => ({
         : state.shieldStatus,
     })),
 
+  addSimEvent: (event) =>
+    set((state) => ({
+      simEvents: [event, ...state.simEvents].slice(0, 40),
+    })),
+  setSimNumber: (simNumber) => set({ simNumber }),
+  setSimStatus: (simStatus) => set({ simStatus }),
+  setSimScore: (simScore) => set({ simScore }),
+  setCarrier: (carrier) => set({ carrier }),
+
   reset: () => set(initialState),
   resetDemo: () =>
     set({
@@ -200,6 +232,34 @@ export const useAnalysisStore = create<AnalysisState>((set) => ({
       voiceInput: initialVoiceInput,
       voiceShieldState: 'idle',
       voiceResult: null,
+      blobTone: 'idle',
+    }),
+  resetSimGuard: () =>
+    set({
+      simNumber: null,
+      simStatus: 'idle',
+      simScore: 0,
+      carrier: null,
+      simEvents: [],
+      blobTone: 'idle',
+    }),
+  clearAllShields: () =>
+    set({
+      shieldResults: {},
+      shieldStatus: { voice: 'idle', job: 'idle', sim: 'idle' },
+      fusionResult: null,
+      blobTone: 'idle',
+      trustedContactAlerted: false,
+    }),
+  setShieldResultsMap: (results) =>
+    set({
+      shieldResults: results,
+      shieldStatus: {
+        voice: results.voice ? 'done' : 'idle',
+        job: results.job ? 'done' : 'idle',
+        sim: results.sim ? 'done' : 'idle',
+      },
+      fusionResult: null,
       blobTone: 'idle',
     }),
 }));

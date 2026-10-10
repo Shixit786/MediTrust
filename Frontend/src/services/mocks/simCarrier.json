@@ -1,0 +1,9 @@
+{
+  "provider": "Demo Telecom",
+  "line_type": "MOBILE · PREPAID",
+  "region": "UP EAST",
+  "fraud_score": 18,
+  "confidence": "92%",
+  "recent_sim_change": "NONE IN 90 DAYS",
+  "roaming": "NO"
+}

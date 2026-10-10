@@ -1,4 +1,4 @@
-import type { ShieldId, ShieldResult, FusionResult, JobShieldResult, VoiceShieldResult } from '../types/analysis';
+import type { ShieldId, ShieldResult, FusionResult, JobShieldResult, VoiceShieldResult, CarrierInfo } from '../types/analysis';
 import voiceMock from './mocks/voice.json';
 import voiceAIMock from './mocks/voiceAI.json';
 import voiceAI2Mock from './mocks/voiceAI2.json';
@@ -7,7 +7,9 @@ import jobMock from './mocks/job.json';
 import jobScamMock from './mocks/jobScam.json';
 import jobSafeMock from './mocks/jobSafe.json';
 import simMock from './mocks/sim.json';
+import simCarrierMock from './mocks/simCarrier.json';
 import fusionMock from './mocks/fusion.json';
+import { evaluateFusion } from './fusionRules';
 
 export const USE_MOCK = true;
 
@@ -132,6 +134,24 @@ export const api = {
     throw new Error('Live API endpoint not configured yet');
   },
 
+  registerNumber: async (_phone: string): Promise<CarrierInfo> => {
+    if (USE_MOCK) {
+      // Simulate 1.5s network delay
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      return simCarrierMock as unknown as CarrierInfo;
+    }
+
+    const response = await fetch('/api/sim/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: _phone }),
+    });
+    if (!response.ok) {
+      throw new Error(`Carrier registration failed: ${response.statusText}`);
+    }
+    return response.json();
+  },
+
   getShieldAnalysis: async (shieldId: ShieldId): Promise<ShieldResult> => {
     switch (shieldId) {
       case 'voice':
@@ -148,5 +168,46 @@ export const api = {
       return fusionMock as FusionResult;
     }
     throw new Error('Live API endpoint not configured yet');
+  },
+
+  runFusion: async (
+    shieldResults: Partial<Record<ShieldId, ShieldResult>>,
+    signal?: AbortSignal
+  ): Promise<FusionResult> => {
+    if (USE_MOCK) {
+      // 3.5s simulated synthesis delay
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          resolve();
+        }, 3500);
+
+        if (signal) {
+          signal.addEventListener('abort', () => {
+            clearTimeout(timeout);
+            reject(new DOMException('Aborted', 'AbortError'));
+          });
+        }
+      });
+
+      return evaluateFusion(shieldResults);
+    }
+
+    // Future live backend integration:
+    const payload = {
+      voiceRisk: shieldResults.voice?.risk,
+      jobRisk: shieldResults.job?.risk,
+      simRisk: shieldResults.sim?.risk,
+    };
+
+    const response = await fetch('/api/fusion/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal,
+    });
+    if (!response.ok) {
+      throw new Error(`Fusion analysis failed: ${response.statusText}`);
+    }
+    return response.json();
   },
 };

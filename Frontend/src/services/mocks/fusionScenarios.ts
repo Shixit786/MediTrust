@@ -1,0 +1,128 @@
+import type { ShieldId, ShieldResult } from '../../types/analysis';
+import jobMock from './job.json';
+import voiceMock from './voice.json';
+import simMock from './sim.json';
+
+export interface FusionScenario {
+  id: string;
+  name: string;
+  tagline: string;
+  scores: { job?: number; voice?: number; sim?: number };
+  results: Partial<Record<ShieldId, ShieldResult>>;
+}
+
+export const FUSION_SCENARIOS: Record<string, FusionScenario> = {
+  FULL_ATTACK_CHAIN: {
+    id: 'FULL_ATTACK_CHAIN',
+    name: 'FULL ATTACK CHAIN',
+    tagline: 'job 92 · voice 87 · sim 95',
+    scores: { job: 92, voice: 87, sim: 95 },
+    results: {
+      job: jobMock as unknown as ShieldResult,
+      voice: voiceMock as unknown as ShieldResult,
+      sim: simMock as unknown as ShieldResult,
+    },
+  },
+
+  JOB_VOICE_ONLY: {
+    id: 'JOB_VOICE_ONLY',
+    name: 'JOB + VOICE ONLY',
+    tagline: 'job 92 · voice 87 · sim absent',
+    scores: { job: 92, voice: 87 },
+    results: {
+      job: jobMock as unknown as ShieldResult,
+      voice: voiceMock as unknown as ShieldResult,
+    },
+  },
+
+  SINGLE_VOICE: {
+    id: 'SINGLE_VOICE',
+    name: 'SINGLE SIGNAL: VOICE',
+    tagline: 'voice 87 · others absent',
+    scores: { voice: 87 },
+    results: {
+      voice: voiceMock as unknown as ShieldResult,
+    },
+  },
+
+  ALL_CLEAR: {
+    id: 'ALL_CLEAR',
+    name: 'ALL CLEAR',
+    tagline: 'job 12 · voice 14 · sim 8',
+    scores: { job: 12, voice: 14, sim: 8 },
+    results: {
+      job: {
+        shield: 'job',
+        risk: 12,
+        threat: 'Clean Offer',
+        level: 'low',
+        confidence: 0.98,
+        signals: [
+          {
+            name: 'MCA21 VERIFICATION',
+            detail: 'Hospital employer CIN and registered address match official filings',
+            severity: 'low',
+          },
+          {
+            name: 'OFFER LETTER HASH',
+            detail: 'Zero known malware or macro signatures detected in recruitment PDF',
+            severity: 'low',
+          },
+          {
+            name: 'URL REPUTATION',
+            detail: 'Career domain verified on CleanBrowsing and Google Safe Browsing',
+            severity: 'low',
+          },
+        ],
+      },
+      voice: {
+        shield: 'voice',
+        risk: 14,
+        threat: 'Authentic Voice',
+        level: 'low',
+        confidence: 0.96,
+        signals: [
+          {
+            name: 'SPECTRAL JITTER',
+            detail: 'Biological pitch micro-perturbations match human glottal pulses',
+            severity: 'low',
+          },
+          {
+            name: 'RESPIRATORY INTERVALS',
+            detail: 'Natural vegetative breathing cycle pauses recorded every 4.2 seconds',
+            severity: 'low',
+          },
+          {
+            name: 'NOISE FLOOR CONTINUITY',
+            detail: 'Ambient acoustic reverberation consistent across whole audio stream',
+            severity: 'low',
+          },
+        ],
+      },
+      sim: {
+        shield: 'sim',
+        risk: 8,
+        threat: 'Normal Carrier Activity',
+        level: 'low',
+        confidence: 0.99,
+        signals: [
+          {
+            name: 'CARRIER TELEMETRY',
+            detail: 'No IMSI or SIM reallocation detected in preceding 180 days',
+            severity: 'low',
+          },
+          {
+            name: 'GEOLOCATION DRIFT',
+            detail: 'Cell tower radius consistent with home circle UP EAST baseline',
+            severity: 'low',
+          },
+          {
+            name: 'AUTH VELOCITY',
+            detail: '0 anomalous 2FA or OTP challenges requested in the last 24 hours',
+            severity: 'low',
+          },
+        ],
+      },
+    },
+  },
+};

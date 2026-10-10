@@ -16,6 +16,34 @@ export interface ShieldResult {
   signals: Signal[];
 }
 
+export interface FusionContribution {
+  shield: ShieldId;
+  name: string;
+  risk: number;
+  threat: string;
+  weight: number;
+  status: 'detected' | 'weak_signal' | 'not_available';
+}
+
+export interface FusionCorrelation {
+  id: string;
+  title: string;
+  description: string;
+  matched: boolean;
+  shields: ShieldId[];
+}
+
+export interface FusionChainStep {
+  stepNumber: number;
+  title: string;
+  shield: ShieldId | 'fusion';
+  color: string;
+  status: 'DETECTED' | 'NOT DETECTED' | 'PREDICTED';
+  score?: number;
+  evidence: string[];
+  predictedNote?: string;
+}
+
 export interface FusionResult {
   overall_risk: number;
   level: RiskLevel;
@@ -23,6 +51,13 @@ export interface FusionResult {
   attack_chain: { step: string; shield: ShieldId }[];
   explanation: string;
   actions: string[];
+  explanation_en?: string;
+  explanation_hi?: string;
+  confidence?: number;
+  contributions?: FusionContribution[];
+  correlations?: FusionCorrelation[];
+  chain_steps?: FusionChainStep[];
+  matched_patterns?: string[];
 }
 
 export type BlobTone = 'idle' | 'low' | 'medium' | 'high' | 'critical';
@@ -137,4 +172,56 @@ export interface VoiceInputData {
   source: VoiceSource | null;
   sampleId?: string | null;
   duration?: number | null;
+}
+
+// SIM Guard Specific Types
+export type SimGuardStatus = 'idle' | 'normal' | 'anomaly' | 'confirmed' | 'frozen';
+
+export interface CarrierInfo {
+  provider: string;
+  line_type: string;
+  region: string;
+  fraud_score: number;
+  confidence: string;
+  recent_sim_change: string;
+  roaming: string;
+}
+
+export type SimEventType =
+  | 'NETWORK_SCAN'
+  | 'BASELINE_OK'
+  | 'LOCATION_JUMP'
+  | 'DEVICE_SWITCH'
+  | 'OTP_FLOOD'
+  | 'SIM_CHANGE'
+  | 'ANOMALY_SPIKE'
+  | 'SWAP_CONFIRMED'
+  | 'FREEZE_ENGAGED'
+  | 'FREEZE_RELEASED';
+
+export interface SimTelemetryEvent {
+  id: string;
+  timestamp: string; // HH:MM:SS
+  type: SimEventType;
+  message: string;
+  severity: RiskLevel;
+}
+
+export interface SimRedFlag {
+  title: string;
+  detail: string;
+  category: string;
+}
+
+export interface SimShieldResult extends ShieldResult {
+  simNumber: string;
+  status: SimGuardStatus;
+  carrier: CarrierInfo;
+  red_flags: SimRedFlag[];
+  ai: {
+    summary_en: string;
+    summary_hi: string;
+    patterns: string[];
+    confidence: number;
+  };
 }
