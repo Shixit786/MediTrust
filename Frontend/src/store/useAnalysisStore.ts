@@ -13,6 +13,7 @@ import type {
   CarrierInfo,
   SimGuardStatus,
 } from '../types/analysis';
+import { addHistoryEntry } from '../services/history';
 
 export type ScanStatus = 'idle' | 'scanning' | 'completed' | 'error';
 export type JobShieldStatus = 'idle' | 'scanning' | 'done' | 'error';
@@ -141,13 +142,23 @@ export const useAnalysisStore = create<AnalysisState>((set) => ({
   setJobMessage: (jobMessage) => set({ jobMessage }),
   setJobPdf: (jobPdf) => set({ jobPdf }),
   setSimEvents: (simEvents) => set({ simEvents }),
-  setShieldResult: (shieldId, result) =>
+  setShieldResult: (shieldId, result) => {
+    if (result) {
+      addHistoryEntry({
+        shield: shieldId,
+        risk: result.risk,
+        level: result.level,
+        threat: result.threat,
+        summary: result.signals[0]?.detail || `${result.threat} evaluated.`,
+      });
+    }
     set((state) => ({
       shieldResults: {
         ...state.shieldResults,
         [shieldId]: result,
       },
-    })),
+    }));
+  },
   setShieldStatus: (shieldId, status) =>
     set((state) => ({
       shieldStatus: {
@@ -155,7 +166,18 @@ export const useAnalysisStore = create<AnalysisState>((set) => ({
         [shieldId]: status,
       },
     })),
-  setFusionResult: (fusionResult) => set({ fusionResult }),
+  setFusionResult: (fusionResult) => {
+    if (fusionResult) {
+      addHistoryEntry({
+        shield: 'fusion',
+        risk: fusionResult.overall_risk,
+        level: fusionResult.level,
+        threat: fusionResult.pattern,
+        summary: fusionResult.explanation.slice(0, 140),
+      });
+    }
+    set({ fusionResult });
+  },
   setStatus: (status) => set({ status }),
   setDemoStatus: (demoStatus) => set({ demoStatus }),
   setBlobTone: (blobTone) => set({ blobTone }),
@@ -251,7 +273,19 @@ export const useAnalysisStore = create<AnalysisState>((set) => ({
       blobTone: 'idle',
       trustedContactAlerted: false,
     }),
-  setShieldResultsMap: (results) =>
+  setShieldResultsMap: (results) => {
+    (['job', 'voice', 'sim'] as const).forEach((id) => {
+      const res = results[id];
+      if (res) {
+        addHistoryEntry({
+          shield: id,
+          risk: res.risk,
+          level: res.level,
+          threat: res.threat,
+          summary: res.signals[0]?.detail || `${res.threat} evaluated.`,
+        });
+      }
+    });
     set({
       shieldResults: results,
       shieldStatus: {
@@ -261,5 +295,6 @@ export const useAnalysisStore = create<AnalysisState>((set) => ({
       },
       fusionResult: null,
       blobTone: 'idle',
-    }),
+    });
+  },
 }));

@@ -21,6 +21,7 @@ const menuLinks = [
   { title: 'Job Shield', subtitle: 'WhatsApp, PDF & URL Scams', path: '/job' },
   { title: 'SIM Guard', subtitle: 'SIM Swap & Carrier Telemetry', path: '/sim' },
   { title: 'Fusion Engine', subtitle: 'Cross-Vector Attack Synthesis', path: '/fusion' },
+  { title: 'Playbook', subtitle: 'Response Protocols & Emergency Actions', path: '/playbook' },
   { title: 'History', subtitle: 'Past Threat Audit Logs', path: '/history' },
 ];
 

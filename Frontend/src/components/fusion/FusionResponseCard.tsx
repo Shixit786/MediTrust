@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MonoLabel } from '../ui/MonoLabel';
+import { ArrowLink } from '../ui/ArrowLink';
 import { useAnalysisStore } from '../../store/useAnalysisStore';
 import { ShieldAlert, ShieldCheck, Check, Bell, Copy } from 'lucide-react';
 import type { FusionResult } from '../../types/analysis';
@@ -149,6 +150,10 @@ NOTE: Early warning assessment, not legal proof.`;
                 </>
               )}
             </button>
+
+            <ArrowLink to="/playbook" size="sm" className="text-white hover:text-[#6FA3FF]">
+              VIEW PLAYBOOK
+            </ArrowLink>
           </div>
         </div>
       </div>

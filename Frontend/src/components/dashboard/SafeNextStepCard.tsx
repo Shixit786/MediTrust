@@ -149,7 +149,7 @@ export const SafeNextStepCard: React.FC = React.memo(() => {
           )}
         </button>
 
-        <ArrowLink to="/fusion" size="md" className="text-white hover:text-[#6FA3FF]">
+        <ArrowLink to="/playbook" size="md" className="text-white hover:text-[#6FA3FF]">
           VIEW PLAYBOOK
         </ArrowLink>
       </div>

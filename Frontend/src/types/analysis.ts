@@ -60,6 +60,18 @@ export interface FusionResult {
   matched_patterns?: string[];
 }
 
+export interface HistoryEntry {
+  id: string;
+  timestamp: string; // ISO string
+  timeFormatted: string; // e.g. "12:15:30"
+  dateFormatted: string; // e.g. "Oct 10, 2026"
+  shield: 'voice' | 'job' | 'sim' | 'fusion';
+  risk: number;
+  level: RiskLevel;
+  threat: string;
+  summary: string;
+}
+
 export type BlobTone = 'idle' | 'low' | 'medium' | 'high' | 'critical';
 export type ShieldCardStatus = 'idle' | 'scanning' | 'done';
 export type DemoStatus = 'idle' | 'running' | 'done';

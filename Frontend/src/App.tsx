@@ -12,6 +12,7 @@ const VoiceShieldPage = lazy(() => import('./pages/VoiceShieldPage').then(m => (
 const JobShieldPage = lazy(() => import('./pages/JobShieldPage').then(m => ({ default: m.JobShieldPage })));
 const SimGuardPage = lazy(() => import('./pages/SimGuardPage').then(m => ({ default: m.SimGuardPage })));
 const FusionEnginePage = lazy(() => import('./pages/FusionEnginePage').then(m => ({ default: m.FusionEnginePage })));
+const PlaybookPage = lazy(() => import('./pages/PlaybookPage').then(m => ({ default: m.PlaybookPage })));
 const HistoryPage = lazy(() => import('./pages/HistoryPage').then(m => ({ default: m.HistoryPage })));
 
 // Scroll to top or anchor on route change
@@ -91,6 +92,7 @@ export function App() {
               <Route path="/job" element={<JobShieldPage />} />
               <Route path="/sim" element={<SimGuardPage />} />
               <Route path="/fusion" element={<FusionEnginePage />} />
+              <Route path="/playbook" element={<PlaybookPage />} />
               <Route path="/history" element={<HistoryPage />} />
               <Route path="*" element={<HomePage />} />
             </Routes>
