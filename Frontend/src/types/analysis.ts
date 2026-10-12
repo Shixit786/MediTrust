@@ -126,7 +126,7 @@ export interface CompanyAnalysis {
 
 export interface AiScamAnalysis {
   summary_en: string;
-  summary_hi: string;
+  summary_hi?: string;
   patterns: string[];
   confidence: number;
 }
@@ -162,7 +162,7 @@ export interface VoiceAnomaly {
 
 export interface VoiceAiAnalysis {
   summary_en: string;
-  summary_hi: string;
+  summary_hi?: string;
   why_matters: string;
   patterns: string[];
   confidence: number;
@@ -232,7 +232,7 @@ export interface SimShieldResult extends ShieldResult {
   red_flags: SimRedFlag[];
   ai: {
     summary_en: string;
-    summary_hi: string;
+    summary_hi?: string;
     patterns: string[];
     confidence: number;
   };

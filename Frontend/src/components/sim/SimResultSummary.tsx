@@ -13,7 +13,6 @@ import {
   Check,
   ArrowUpRight,
   Sparkles,
-  Languages,
 } from 'lucide-react';
 
 interface SimResultSummaryProps {
@@ -26,7 +25,6 @@ interface SimResultSummaryProps {
 export const SimResultSummary: React.FC<SimResultSummaryProps> = React.memo(
   ({ score, status, redFlags, maskedNumber }) => {
     const navigate = useNavigate();
-    const [lang, setLang] = useState<'en' | 'hi'>('en');
     const [copied, setCopied] = useState(false);
 
     const isConfirmed = status === 'confirmed' || status === 'frozen';
@@ -40,14 +38,9 @@ export const SimResultSummary: React.FC<SimResultSummaryProps> = React.memo(
       ? 'Critical risk: location jump, new device and OTP flood together match a simulated SIM swap pattern.'
       : 'Suspicious telemetry: isolated carrier telemetry anomalies exceed normal operational tolerance.';
 
-    const aiSummaryEn = isConfirmed
+    const summaryText = isConfirmed
       ? 'Multi-vector telemetry correlation confirms unauthorized SIM circuit migration. Cell tower handoff across 900+ km within 11 minutes alongside rapid 2FA token polling indicates coordinated account takeover attempt.'
       : 'Unusual signaling parameters detected on carrier radio network. Monitor outbound verification SMS and ensure bank accounts are guarded with hardware security keys.';
-
-    const aiSummaryHi =
-      'Aapke number par bahut kam samay mein naya device, door ka location aur baar-baar OTP request aaye. Ye SIM swap ka pattern ho sakta hai. Bank aur apne operator se turant sampark karein.';
-
-    const summaryText = lang === 'en' ? aiSummaryEn : aiSummaryHi;
 
     const actionSteps = [
       'Call your carrier from another phone to verify SIM status',
@@ -66,7 +59,7 @@ Red Flags Detected:
 ${redFlags.map((rf) => `- [${rf.category}] ${rf.title}: ${rf.detail}`).join('\n')}
 
 AI Forensics Summary:
-${aiSummaryEn}
+${summaryText}
 
 Official Helpline: 1930 (cybercrime.gov.in)
 Verified via MediTrust AI Telecom Identity Defense`;
@@ -75,7 +68,7 @@ Verified via MediTrust AI Telecom Identity Defense`;
         setCopied(true);
         setTimeout(() => setCopied(false), 2500);
       });
-    }, [maskedNumber, effectiveRisk, status, isConfirmed, redFlags, aiSummaryEn]);
+    }, [maskedNumber, effectiveRisk, status, isConfirmed, redFlags, summaryText]);
 
     const handleSendToFusion = useCallback(() => {
       navigate('/dashboard');
@@ -172,7 +165,7 @@ Verified via MediTrust AI Telecom Identity Defense`;
           </section>
         )}
 
-        {/* 3. AI Explanation Card with English / Hinglish Toggle */}
+        {/* 3. AI Explanation Card */}
         <section
           className="w-full bg-white rounded-[20px] border border-[#0A0A0A] p-6 sm:p-10 md:p-12"
           aria-label="AI Forensics Report"
@@ -189,36 +182,11 @@ Verified via MediTrust AI Telecom Identity Defense`;
                 </h3>
               </div>
             </div>
-
-            {/* English / Hinglish Toggle */}
-            <div className="inline-flex items-center p-1 rounded-xl bg-[#F0F0F0] border border-[#0A0A0A]/10 self-start sm:self-auto">
-              <Languages className="w-4 h-4 text-[#6B6F76] ml-2 mr-1" />
-              <button
-                onClick={() => setLang('en')}
-                className={`px-3 py-1 rounded-lg text-xs font-mono font-medium transition-colors ${
-                  lang === 'en'
-                    ? 'bg-white text-[#0A0A0A] shadow-sm font-bold'
-                    : 'text-[#6B6F76] hover:text-[#0A0A0A]'
-                }`}
-              >
-                ENGLISH
-              </button>
-              <button
-                onClick={() => setLang('hi')}
-                className={`px-3 py-1 rounded-lg text-xs font-mono font-medium transition-colors ${
-                  lang === 'hi'
-                    ? 'bg-white text-[#0A0A0A] shadow-sm font-bold'
-                    : 'text-[#6B6F76] hover:text-[#0A0A0A]'
-                }`}
-              >
-                HINGLISH
-              </button>
-            </div>
           </div>
 
           <div className="p-6 sm:p-8 rounded-[16px] bg-[#F0F0F0]/40 border border-[#0A0A0A]/10">
             <div className="text-base sm:text-lg font-light text-[#0A0A0A] leading-relaxed">
-              <RevealText key={lang} splitBy="lines" duration={0.6}>
+              <RevealText splitBy="lines" duration={0.6}>
                 {summaryText}
               </RevealText>
             </div>

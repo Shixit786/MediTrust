@@ -3,6 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { History, Menu, X, Shield, ArrowUpRight } from 'lucide-react';
 import { MonoLabel } from '../ui/MonoLabel';
+import { HairlineRow } from '../ui/HairlineRow';
+import { useAnalysisStore } from '../../store/useAnalysisStore';
 
 export interface TopBarProps {
   onShieldClick?: (shieldId: string) => void;
@@ -29,6 +31,7 @@ export const TopBar: React.FC<TopBarProps> = React.memo(({ onShieldClick }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const startPresenter = useAnalysisStore((s) => s.startPresenter);
 
   // Lock scroll when menu open
   useEffect(() => {
@@ -171,6 +174,30 @@ export const TopBar: React.FC<TopBarProps> = React.memo(({ onShieldClick }) => {
                   </div>
                 </Link>
               ))}
+            </div>
+
+            {/* Start Presenter Mode Row */}
+            <div className="w-full max-w-[1400px] mx-auto pb-6">
+              <HairlineRow
+                className="py-4 px-2"
+                onClick={() => {
+                  setMenuOpen(false);
+                  startPresenter();
+                  navigate('/job?demo=1');
+                }}
+              >
+                <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-[#0037FF]" />
+                    <MonoLabel color="accent">GUIDED EVALUATION</MonoLabel>
+                    <span className="text-xs font-mono text-[#6B6F76]">· 5-STAGE ATTACK CHAIN (SHIFT+D)</span>
+                  </div>
+                  <span className="inline-flex items-center gap-1.5 font-mono-label text-xs sm:text-sm font-semibold text-[#0037FF] group-hover:underline">
+                    <span>START PRESENTER MODE</span>
+                    <span className="font-sans">↗</span>
+                  </span>
+                </div>
+              </HairlineRow>
             </div>
 
             {/* Footer inside menu */}

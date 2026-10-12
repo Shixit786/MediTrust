@@ -61,7 +61,6 @@ export function evaluateFusion(inputs: Partial<Record<ShieldId, ShieldResult>>):
       attack_chain: [],
       explanation: 'No input vectors received. Awaiting telemetry from Job Shield, Voice Shield, or SIM Guard.',
       explanation_en: 'No input vectors received. Awaiting telemetry from Job Shield, Voice Shield, or SIM Guard.',
-      explanation_hi: 'Koi vector praapt nahi hua. Job Shield, Voice Shield ya SIM Guard se signals ki pratiksha hai.',
       actions: ['Run at least one shield scan to evaluate multi-vector correlation.'],
       confidence: 0,
       contributions: [
@@ -333,44 +332,30 @@ export function evaluateFusion(inputs: Partial<Record<ShieldId, ShieldResult>>):
     ];
   }
 
-  // 12. Reasoning templates (EN & HI)
+  // 12. Reasoning templates (English only)
   let explanationEn = '';
-  let explanationHi = '';
 
   if (jobHigh && voiceHigh && simHigh) {
     explanationEn =
       'High-confidence multi-vector attack detected targeting healthcare staff credentials. Attacker initiated contact via fake hospital recruitment offer, followed up with a cloned voice call impersonating HR, and executed a SIM swap to intercept secondary 2FA verification tokens.';
-    explanationHi =
-      'Fake job offer, nakli awaaz wali call aur SIM swap ke sanket ek hi attack ki kadiyan lag rahi hain. Link mat kholo, OTP kisi ko mat do, aur hospital ya bank ke official number par khud call karo.';
   } else if (jobHigh && voiceHigh) {
     explanationEn =
       'Coordinated recruitment phishing detected. The attacker deployed a fake hospital vacancy offer and followed up with synthetic voice impersonation to validate fake credentials.';
-    explanationHi =
-      'Nakli naukri ka offer aur hospital HR ke naam par aayi nakli audio call aapas mein judi hain. Kisi bhi anjaan link par click na karein aur na koi payment karein.';
   } else if (jobHigh && simHigh) {
     explanationEn =
       'Account takeover vector identified. Fraudulent recruitment lure coincided with carrier-level SIM anomaly, indicating an attempt to harvest credentials and bypass 2FA.';
-    explanationHi =
-      'Naukri ke jhanse ke sath aapke SIM card par anokhi halchal dekhi gayi hai. Ye aapke bank ya 2FA ko bypass karne ki koshish ho sakti hai.';
   } else if (voiceHigh && simHigh) {
     explanationEn =
       'Targeted social engineering vector detected. Deepfake voice communication combined with carrier anomalies points to an active session hijack attempt.';
-    explanationHi =
-      'Nakli voice call aur SIM change ki gatividhiyan ek sath payi gayi hain. Apne telecom operator aur bank ko turant soochit karein.';
   } else if (highRiskCount === 1) {
     const highest = entries.reduce((prev, curr) => (curr.result.risk > prev.result.risk ? curr : prev), entries[0]);
     explanationEn = `Single-vector threat identified from ${highest.result.threat} (${highest.result.risk}/100). While other monitored vectors exhibit baseline telemetry, elevated caution is advised for this isolated signal.`;
-    explanationHi = `Ek akele source (${highest.result.threat}) se khatre ke sanket mile hain. Doosre signals surakshit hain, fir bhi savdhaan rahein aur jaanch karein.`;
   } else if (level === 'low') {
     explanationEn =
       'No coordinated attack pattern detected across evaluated vectors. Shield indicators remain within nominal baselines. Low scores do not guarantee safety. Stay alert.';
-    explanationHi =
-      'Sabhi jaanch kiye gaye signals surakshit seema mein hain. Kisi coordinated hamle ke saboot nahi mile hain. Phir bhi kisi anjaan vyakti ko OTP ya payment na dein.';
   } else {
     explanationEn =
       'Moderate vector correlation observed. While indicators do not match an aggressive takeover pattern, suspicious telemetry warrants independent confirmation.';
-    explanationHi =
-      'Signals mein kuch sandigdh baatein mili hain. Halanki bada hamla confirm nahi hai, fir bhi savdhaan rahein aur bina verify kiye kisi par bharosa na karein.';
   }
 
   return {
@@ -380,7 +365,6 @@ export function evaluateFusion(inputs: Partial<Record<ShieldId, ShieldResult>>):
     attack_chain: attackChain,
     explanation: explanationEn,
     explanation_en: explanationEn,
-    explanation_hi: explanationHi,
     actions,
     confidence,
     contributions,

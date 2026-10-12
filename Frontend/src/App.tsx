@@ -1,9 +1,12 @@
 import { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { LazyMotion, domAnimation } from 'framer-motion';
+import { LazyMotion, domAnimation, AnimatePresence, m } from 'framer-motion';
 import Lenis from 'lenis';
 import { PageShell } from './components/layout/PageShell';
 import { HomePage } from './pages/HomePage';
+import { NotFoundPage } from './pages/NotFoundPage';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
+import { RouteLoadingFallback } from './components/common/RouteLoadingFallback';
 import { isTouchDevice, isReducedMotion, isLowTierHardware } from './utils/perfGuard';
 
 // Lazy load non-home route pages to optimize initial bundle size & parse time
@@ -77,29 +80,53 @@ function SmoothScrollSingleton() {
   return null;
 }
 
+// Route manager with subtle <250ms page transition
+function AnimatedRoutes() {
+  const location = useLocation();
+  const reducedMotion = isReducedMotion();
+
+  return (
+    <AnimatePresence mode="wait">
+      <m.div
+        key={location.pathname}
+        initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 12 }}
+        animate={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+        exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: -12 }}
+        transition={{ duration: 0.18, ease: 'easeOut' }}
+        className="w-full flex-1 flex flex-col"
+        style={{ willChange: 'opacity, transform' }}
+      >
+        <Suspense fallback={<RouteLoadingFallback />}>
+          <Routes location={location}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/voice" element={<VoiceShieldPage />} />
+            <Route path="/job" element={<JobShieldPage />} />
+            <Route path="/sim" element={<SimGuardPage />} />
+            <Route path="/fusion" element={<FusionEnginePage />} />
+            <Route path="/playbook" element={<PlaybookPage />} />
+            <Route path="/history" element={<HistoryPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
+      </m.div>
+    </AnimatePresence>
+  );
+}
+
 export function App() {
   return (
-    <LazyMotion features={domAnimation} strict={false}>
-      <BrowserRouter>
-        <SmoothScrollSingleton />
-        <ScrollManager />
-        <PageShell>
-          <Suspense fallback={<div className="min-h-[calc(100vh-220px)] w-full" />}>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/voice" element={<VoiceShieldPage />} />
-              <Route path="/job" element={<JobShieldPage />} />
-              <Route path="/sim" element={<SimGuardPage />} />
-              <Route path="/fusion" element={<FusionEnginePage />} />
-              <Route path="/playbook" element={<PlaybookPage />} />
-              <Route path="/history" element={<HistoryPage />} />
-              <Route path="*" element={<HomePage />} />
-            </Routes>
-          </Suspense>
-        </PageShell>
-      </BrowserRouter>
-    </LazyMotion>
+    <ErrorBoundary>
+      <LazyMotion features={domAnimation} strict={false}>
+        <BrowserRouter>
+          <SmoothScrollSingleton />
+          <ScrollManager />
+          <PageShell>
+            <AnimatedRoutes />
+          </PageShell>
+        </BrowserRouter>
+      </LazyMotion>
+    </ErrorBoundary>
   );
 }
 

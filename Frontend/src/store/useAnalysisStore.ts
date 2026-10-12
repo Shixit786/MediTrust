@@ -52,6 +52,13 @@ export interface AnalysisState {
   simScore: number;
   carrier: CarrierInfo | null;
 
+  // Presenter Mode State
+  presenter: {
+    active: boolean;
+    step: number; // 0: JOB, 1: VOICE, 2: SIM, 3: FUSION, 4: PLAYBOOK
+    autoplay: boolean;
+  };
+
   // Actions
   setVoiceFile: (file: File | null) => void;
   setJobMessage: (message: string) => void;
@@ -82,8 +89,17 @@ export interface AnalysisState {
   setSimScore: (simScore: number) => void;
   setCarrier: (carrier: CarrierInfo | null) => void;
 
+  // Presenter Actions
+  startPresenter: () => void;
+  nextStep: () => void;
+  prevStep: () => void;
+  setPresenterStep: (step: number) => void;
+  toggleAutoplay: () => void;
+  exitPresenter: () => void;
+
   reset: () => void;
   resetDemo: () => void;
+  resetAll: () => void;
   resetJobShield: () => void;
   resetVoiceShield: () => void;
   resetSimGuard: () => void;
@@ -134,6 +150,12 @@ const initialState = {
   simStatus: 'idle' as SimGuardStatus,
   simScore: 0,
   carrier: null as CarrierInfo | null,
+
+  presenter: {
+    active: false,
+    step: 0,
+    autoplay: false,
+  },
 };
 
 export const useAnalysisStore = create<AnalysisState>((set) => ({
@@ -231,11 +253,101 @@ export const useAnalysisStore = create<AnalysisState>((set) => ({
   setSimScore: (simScore) => set({ simScore }),
   setCarrier: (carrier) => set({ carrier }),
 
+  startPresenter: () =>
+    set({
+      voiceFile: null,
+      voiceInput: initialVoiceInput,
+      voiceShieldState: 'idle',
+      voiceResult: null,
+      jobMessage: '',
+      jobPdf: null,
+      jobInput: initialJobInput,
+      jobShieldState: 'idle',
+      jobResult: null,
+      simNumber: null,
+      simStatus: 'idle',
+      simScore: 0,
+      carrier: null,
+      simEvents: [],
+      shieldResults: {},
+      shieldStatus: initialShieldStatus,
+      fusionResult: null,
+      status: 'idle',
+      demoStatus: 'idle',
+      blobTone: 'idle',
+      trustedContactAlerted: false,
+      presenter: {
+        active: true,
+        step: 0,
+        autoplay: false,
+      },
+    }),
+  nextStep: () =>
+    set((state) => ({
+      presenter: {
+        ...state.presenter,
+        step: Math.min(4, state.presenter.step + 1),
+      },
+    })),
+  prevStep: () =>
+    set((state) => ({
+      presenter: {
+        ...state.presenter,
+        step: Math.max(0, state.presenter.step - 1),
+      },
+    })),
+  setPresenterStep: (step) =>
+    set((state) => ({
+      presenter: {
+        ...state.presenter,
+        step: Math.max(0, Math.min(4, step)),
+      },
+    })),
+  toggleAutoplay: () =>
+    set((state) => ({
+      presenter: {
+        ...state.presenter,
+        autoplay: !state.presenter.autoplay,
+      },
+    })),
+  exitPresenter: () =>
+    set((state) => ({
+      presenter: {
+        ...state.presenter,
+        active: false,
+        autoplay: false,
+      },
+    })),
+
   reset: () => set(initialState),
   resetDemo: () =>
     set({
       shieldResults: {},
       shieldStatus: { voice: 'idle', job: 'idle', sim: 'idle' },
+      fusionResult: null,
+      status: 'idle',
+      demoStatus: 'idle',
+      blobTone: 'idle',
+      trustedContactAlerted: false,
+    }),
+  resetAll: () =>
+    set({
+      voiceFile: null,
+      voiceInput: initialVoiceInput,
+      voiceShieldState: 'idle',
+      voiceResult: null,
+      jobMessage: '',
+      jobPdf: null,
+      jobInput: initialJobInput,
+      jobShieldState: 'idle',
+      jobResult: null,
+      simNumber: null,
+      simStatus: 'idle',
+      simScore: 0,
+      carrier: null,
+      simEvents: [],
+      shieldResults: {},
+      shieldStatus: initialShieldStatus,
       fusionResult: null,
       status: 'idle',
       demoStatus: 'idle',

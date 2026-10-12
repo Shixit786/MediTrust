@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { MonoLabel } from '../ui/MonoLabel';
 import { useAnalysisStore } from '../../store/useAnalysisStore';
 import { UserCheck, MessageSquare, Copy, Check, Send, Trash2 } from 'lucide-react';
@@ -24,6 +25,7 @@ function maskIndianPhone(digits: string): string {
 
 export const PlaybookGuardianAlert: React.FC<PlaybookGuardianAlertProps> = React.memo(
   ({ level }) => {
+    const [searchParams] = useSearchParams();
     const trustedContactAlerted = useAnalysisStore((s) => s.trustedContactAlerted);
     const setTrustedContactAlerted = useAnalysisStore((s) => s.setTrustedContactAlerted);
 
@@ -33,13 +35,20 @@ export const PlaybookGuardianAlert: React.FC<PlaybookGuardianAlertProps> = React
     const [phoneInput, setPhoneInput] = useState<string>('');
     const [inputError, setInputError] = useState<string | null>(null);
 
-    // Saved contact state (persisted securely in localStorage)
+    // Saved contact state (persisted securely in localStorage or initialized in demo mode)
     const [savedContact, setSavedContact] = useState<SavedContact | null>(() => {
       try {
         const raw = window.localStorage.getItem(STORAGE_KEY_CONTACT);
         if (raw) return JSON.parse(raw);
       } catch {
         // Fallback to null
+      }
+      if (searchParams.get('demo') === '1') {
+        return {
+          name: 'Dr. Priya Sharma',
+          relationship: 'Family',
+          maskedPhone: '+91 98••• ••567',
+        };
       }
       return null;
     });

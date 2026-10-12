@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAnalysisStore } from '../store/useAnalysisStore';
 import { api } from '../services/api';
 import type { VoiceShieldResult, FeatureStatus } from '../types/analysis';
@@ -15,6 +16,7 @@ import { AlertCircle, RefreshCw } from 'lucide-react';
 import { MonoLabel } from '../components/ui/MonoLabel';
 
 export const VoiceShieldPage: React.FC = React.memo(() => {
+  const [searchParams] = useSearchParams();
   const voiceShieldState = useAnalysisStore((s) => s.voiceShieldState);
   const voiceResult = useAnalysisStore((s) => s.voiceResult);
   const setVoiceShieldState = useAnalysisStore((s) => s.setVoiceShieldState);
@@ -22,6 +24,9 @@ export const VoiceShieldPage: React.FC = React.memo(() => {
   const resetVoiceShield = useAnalysisStore((s) => s.resetVoiceShield);
   const setBlobTone = useAnalysisStore((s) => s.setBlobTone);
   const setShieldResult = useAnalysisStore((s) => s.setShieldResult);
+
+  // Guard to ensure demo auto-run executes only once per visit
+  const hasAutoRunRef = useRef(false);
 
   // Cached pending result during 4.5s analysis animation
   const pendingResultRef = useRef<VoiceShieldResult | null>(null);
@@ -119,6 +124,18 @@ export const VoiceShieldPage: React.FC = React.memo(() => {
     },
     [setVoiceShieldState]
   );
+
+  // Auto-run support for demo mode: loads AI sample and analyses automatically
+  useEffect(() => {
+    if (searchParams.get('demo') === '1' && !hasAutoRunRef.current && voiceShieldState === 'idle') {
+      hasAutoRunRef.current = true;
+      handleAnalyze({
+        sampleId: 'ai_deepfake',
+        fileName: 'Fake_Doctor_Call_AI.mp3',
+        duration: 18,
+      });
+    }
+  }, [searchParams, voiceShieldState, handleAnalyze]);
 
   const handleAnalysisComplete = useCallback(() => {
     if (pendingResultRef.current) {
@@ -218,7 +235,7 @@ export const VoiceShieldPage: React.FC = React.memo(() => {
             featureStatuses={voiceResult.features.map((f) => f.status)}
           />
 
-          {/* e) AI Forensics Report with English / Hinglish toggle */}
+          {/* e) AI Forensics Report */}
           <VoiceAiReport ai={voiceResult.ai} />
 
           {/* f) Safe Next Step Card & Cybercrime Helpline */}

@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAnalysisStore } from '../store/useAnalysisStore';
+import { api } from '../services/api';
 import type {
   CarrierInfo,
   SimTelemetryEvent,
@@ -18,6 +20,7 @@ import { SimResultSummary } from '../components/sim/SimResultSummary';
 import { MonoLabel } from '../components/ui/MonoLabel';
 
 export const SimGuardPage: React.FC = React.memo(() => {
+  const [searchParams] = useSearchParams();
   const simNumber = useAnalysisStore((s) => s.simNumber);
   const simStatus = useAnalysisStore((s) => s.simStatus);
   const simScore = useAnalysisStore((s) => s.simScore);
@@ -29,9 +32,13 @@ export const SimGuardPage: React.FC = React.memo(() => {
   const setSimScore = useAnalysisStore((s) => s.setSimScore);
   const setCarrier = useAnalysisStore((s) => s.setCarrier);
   const setShieldResult = useAnalysisStore((s) => s.setShieldResult);
+  const setShieldStatus = useAnalysisStore((s) => s.setShieldStatus);
   const setTrustedContactAlerted = useAnalysisStore((s) => s.setTrustedContactAlerted);
   const setBlobTone = useAnalysisStore((s) => s.setBlobTone);
   const resetSimGuard = useAnalysisStore((s) => s.resetSimGuard);
+
+  // Guard to ensure demo auto-run executes only once per visit
+  const hasAutoRunRef = useRef(false);
 
   // Local telemetry events & integrity history (prevent whole-page re-renders)
   const [events, setEvents] = useState<SimTelemetryEvent[]>([]);
@@ -95,11 +102,15 @@ export const SimGuardPage: React.FC = React.memo(() => {
           setSimStatus(evalRes.status);
         }
 
+        if (evalRes.status === 'confirmed' || evalRes.status === 'anomaly' || simStatus === 'frozen') {
+          setShieldStatus('sim', 'done');
+        }
+
         setShieldResult('sim', evalRes.shieldResult);
         return next;
       });
     },
-    [simStatus, setShieldResult, setSimScore, setSimStatus]
+    [simStatus, setShieldResult, setShieldStatus, setSimScore, setSimStatus]
   );
 
   // Initialize Telemetry Source when number is registered
@@ -271,11 +282,34 @@ export const SimGuardPage: React.FC = React.memo(() => {
         'medium'
       );
       setSimStatus('frozen');
+      setShieldStatus('sim', 'done');
       setAttackChainSteps((s) => ({ ...s, freeze: true }));
       setIsAutoRunning(false);
     }, 10500);
     autoTimeoutsRef.current.push(t6);
-  }, [isAutoRunning, setSimStatus]);
+  }, [isAutoRunning, setSimStatus, setShieldStatus]);
+
+  // Auto-run support for demo mode: registers demo number and triggers auto attack sequence
+  useEffect(() => {
+    if (searchParams.get('demo') === '1' && !hasAutoRunRef.current && !simNumber) {
+      hasAutoRunRef.current = true;
+      api
+        .registerNumber('9820144210')
+        .then((carrierInfo) => {
+          handleRegistered({
+            maskedNumber: '+91 98••• ••210',
+            carrier: carrierInfo,
+          });
+          const t = window.setTimeout(() => {
+            handleTriggerAutoSequence();
+          }, 600);
+          autoTimeoutsRef.current.push(t);
+        })
+        .catch((err) => {
+          console.error('SIM demo register error', err);
+        });
+    }
+  }, [searchParams, simNumber, handleRegistered, handleTriggerAutoSequence]);
 
   // Reset Simulation Lab
   const handleResetLab = useCallback(() => {

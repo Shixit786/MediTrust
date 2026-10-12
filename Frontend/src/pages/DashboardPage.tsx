@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAnalysisStore } from '../store/useAnalysisStore';
 import { DashboardHeader } from '../components/dashboard/DashboardHeader';
 import { ShieldStatusCards } from '../components/dashboard/ShieldStatusCards';
@@ -6,11 +7,14 @@ import { DemoControlsBar } from '../components/dashboard/DemoControlsBar';
 import { LiveThreatStream } from '../components/dashboard/LiveThreatStream';
 import { FusionMiniSummary } from '../components/dashboard/FusionMiniSummary';
 import { SafeNextStepCard } from '../components/dashboard/SafeNextStepCard';
-import { HinglishExplanation } from '../components/dashboard/HinglishExplanation';
+import { HairlineRow } from '../components/ui/HairlineRow';
+import { MonoLabel } from '../components/ui/MonoLabel';
 
 export const DashboardPage: React.FC = React.memo(() => {
+  const navigate = useNavigate();
   const fusionResult = useAnalysisStore((s) => s.fusionResult);
   const setBlobTone = useAnalysisStore((s) => s.setBlobTone);
+  const startPresenter = useAnalysisStore((s) => s.startPresenter);
 
   // Reset blob tone to idle on unmount
   useEffect(() => {
@@ -30,6 +34,27 @@ export const DashboardPage: React.FC = React.memo(() => {
       <section aria-label="Shield Security Statuses">
         <ShieldStatusCards />
       </section>
+
+      {/* 2b) Guided Presenter Mode Row */}
+      <HairlineRow
+        className="py-4 px-4 sm:px-6"
+        onClick={() => {
+          startPresenter();
+          navigate('/job?demo=1');
+        }}
+      >
+        <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-3">
+            <span className="w-2 h-2 rounded-full bg-[#0037FF]" />
+            <MonoLabel color="accent">GUIDED EVALUATION</MonoLabel>
+            <span className="text-xs font-mono text-[#6B6F76]">· 5-STAGE ATTACK CHAIN</span>
+          </div>
+          <span className="inline-flex items-center gap-1.5 font-mono-label text-xs sm:text-sm font-semibold text-[#0037FF] group-hover:underline">
+            <span>START PRESENTER MODE</span>
+            <span className="font-sans">↗</span>
+          </span>
+        </div>
+      </HairlineRow>
 
       {/* 3) Run Demo Attack full-width row */}
       <section aria-label="Attack Chain Simulation Controls">
@@ -52,11 +77,10 @@ export const DashboardPage: React.FC = React.memo(() => {
         </div>
       </section>
 
-      {/* 6 & 7) Safe Next Step Strip + Hinglish Explanation (Appears upon Fusion verdict) */}
+      {/* 6) Safe Next Step Strip (Appears upon Fusion verdict) */}
       {hasFusionResult && (
         <section aria-label="Incident Remediation and Advisory" className="flex flex-col gap-8">
           <SafeNextStepCard />
-          <HinglishExplanation />
         </section>
       )}
     </div>

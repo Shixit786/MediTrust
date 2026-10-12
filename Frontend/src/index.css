@@ -17,6 +17,13 @@
     --blob-blue: #6FA3FF;
     --blob-peri: #A5B4FC;
     
+    --blob-idle-core: rgba(24, 26, 32, 0.42);
+    --blob-idle-mid: rgba(72, 77, 89, 0.34);
+    --blob-idle-outer: rgba(142, 149, 163, 0.26);
+    --blob-idle-glint: rgba(214, 218, 226, 0.45);
+    --blob-idle-warm: rgba(120, 112, 108, 0.12);
+    --blob-idle-opacity: 0.85;
+    
     --risk-low: #16A34A;
     --risk-medium: #F59E0B;
     --risk-high: #F97316;
@@ -72,6 +79,12 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
+    }
+  }
+
+  @media (max-width: 900px) {
+    :root {
+      --blob-idle-opacity: 0.60;
     }
   }
 }

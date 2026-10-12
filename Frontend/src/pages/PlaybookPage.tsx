@@ -1,4 +1,5 @@
 import React, { useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAnalysisStore } from '../store/useAnalysisStore';
 import { FUSION_SCENARIOS } from '../services/mocks/fusionScenarios';
 import { PlaybookHeader } from '../components/playbook/PlaybookHeader';
@@ -15,6 +16,7 @@ const SHIELD_METAS = [
 ];
 
 export const PlaybookPage: React.FC = React.memo(() => {
+  const [searchParams] = useSearchParams();
   const shieldResults = useAnalysisStore((s) => s.shieldResults);
   const fusionResult = useAnalysisStore((s) => s.fusionResult);
   const setShieldResultsMap = useAnalysisStore((s) => s.setShieldResultsMap);
@@ -31,6 +33,16 @@ export const PlaybookPage: React.FC = React.memo(() => {
   const hasVoice = !!shieldResults.voice;
   const hasSim = !!shieldResults.sim;
   const hasAnyResult = hasJob || hasVoice || hasSim || !!fusionResult;
+
+  // In demo mode: if no scenario loaded yet, auto populate full attack chain scenario
+  useEffect(() => {
+    if (searchParams.get('demo') === '1' && !hasAnyResult) {
+      const fullChain = FUSION_SCENARIOS.FULL_ATTACK_CHAIN;
+      if (fullChain) {
+        setShieldResultsMap(fullChain.results);
+      }
+    }
+  }, [searchParams, hasAnyResult, setShieldResultsMap]);
 
   // Active shield badges
   const activeShields = useMemo(() => {

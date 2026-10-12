@@ -1,9 +1,12 @@
 import React from 'react';
+import { useAnalysisStore } from '../../store/useAnalysisStore';
 import { MonoLabel } from '../ui/MonoLabel';
 import { RevealText } from '../ui/RevealText';
+import { ArrowLink } from '../ui/ArrowLink';
 import { USE_MOCK } from '../../services/api';
 
 export const DashboardHeader: React.FC = React.memo(() => {
+  const resetAll = useAnalysisStore((s) => s.resetAll);
   return (
     <div className="w-full flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-[#0A0A0A]">
       {/* Left: Tag + Heading + Subtitle */}
@@ -45,6 +48,18 @@ export const DashboardHeader: React.FC = React.memo(() => {
             </MonoLabel>
           </div>
         )}
+
+        {/* Reset Demo Safety Action */}
+        <button
+          type="button"
+          onClick={() => resetAll()}
+          aria-label="Reset All Demo State"
+          className="inline-flex items-center px-3 py-1 rounded-full border border-[#0A0A0A]/20 hover:border-[#0A0A0A] bg-white text-[#6B6F76] hover:text-[#0A0A0A] transition-colors cursor-pointer"
+        >
+          <ArrowLink size="sm" showArrow={false} className="text-xs font-mono lowercase tracking-wider">
+            reset demo
+          </ArrowLink>
+        </button>
       </div>
     </div>
   );

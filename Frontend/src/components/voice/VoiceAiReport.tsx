@@ -1,17 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { MonoLabel } from '../ui/MonoLabel';
 import { RevealText } from '../ui/RevealText';
 import type { VoiceAiAnalysis } from '../../types/analysis';
-import { Sparkles, Languages, AlertCircle } from 'lucide-react';
+import { Sparkles, AlertCircle } from 'lucide-react';
 
 interface VoiceAiReportProps {
   ai: VoiceAiAnalysis;
 }
 
 export const VoiceAiReport: React.FC<VoiceAiReportProps> = React.memo(({ ai }) => {
-  const [lang, setLang] = useState<'en' | 'hi'>('en');
-
-  const summaryText = lang === 'en' ? ai.summary_en : ai.summary_hi;
+  const summaryText = ai.summary_en;
 
   return (
     <section
@@ -30,37 +28,12 @@ export const VoiceAiReport: React.FC<VoiceAiReportProps> = React.memo(({ ai }) =
             </h3>
           </div>
         </div>
-
-        {/* English / Hinglish Toggle */}
-        <div className="inline-flex items-center p-1 rounded-xl bg-[#F0F0F0] border border-[#0A0A0A]/10 self-start sm:self-auto">
-          <Languages className="w-4 h-4 text-[#6B6F76] ml-2 mr-1" />
-          <button
-            onClick={() => setLang('en')}
-            className={`px-3 py-1 rounded-lg text-xs font-mono font-medium transition-colors ${
-              lang === 'en'
-                ? 'bg-white text-[#0A0A0A] shadow-sm font-bold'
-                : 'text-[#6B6F76] hover:text-[#0A0A0A]'
-            }`}
-          >
-            ENGLISH
-          </button>
-          <button
-            onClick={() => setLang('hi')}
-            className={`px-3 py-1 rounded-lg text-xs font-mono font-medium transition-colors ${
-              lang === 'hi'
-                ? 'bg-white text-[#0A0A0A] shadow-sm font-bold'
-                : 'text-[#6B6F76] hover:text-[#0A0A0A]'
-            }`}
-          >
-            HINGLISH
-          </button>
-        </div>
       </div>
 
       {/* Reasoning Paragraph revealed line by line */}
       <div className="p-6 sm:p-8 rounded-[16px] bg-[#F0F0F0]/40 border border-[#0A0A0A]/10 mb-6">
         <div className="text-base sm:text-lg font-light text-[#0A0A0A] leading-relaxed">
-          <RevealText key={lang} splitBy="lines" duration={0.6}>
+          <RevealText splitBy="lines" duration={0.6}>
             {summaryText}
           </RevealText>
         </div>

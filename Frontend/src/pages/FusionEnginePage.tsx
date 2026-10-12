@@ -27,6 +27,7 @@ export const FusionEnginePage: React.FC = React.memo(() => {
 
   const timeoutsRef = useRef<number[]>([]);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const hasAutoRunRef = useRef(false);
 
   const clearAllTimeouts = useCallback(() => {
     timeoutsRef.current.forEach((t) => clearTimeout(t));
@@ -72,7 +73,8 @@ export const FusionEnginePage: React.FC = React.memo(() => {
 
   // Demo mode support: ?demo=1 loads FULL ATTACK CHAIN and starts fusion after 600ms
   useEffect(() => {
-    if (searchParams.get('demo') === '1') {
+    if (searchParams.get('demo') === '1' && !hasAutoRunRef.current) {
+      hasAutoRunRef.current = true;
       const fullChain = FUSION_SCENARIOS.FULL_ATTACK_CHAIN;
       if (fullChain) {
         setShieldResultsMap(fullChain.results);
@@ -163,7 +165,7 @@ export const FusionEnginePage: React.FC = React.memo(() => {
             <FusionCorrelations correlations={fusionResult.correlations} />
           )}
 
-          {/* e) AI Fusion Report with English / Hinglish toggle */}
+          {/* e) AI Fusion Report */}
           <FusionAiReport fusionResult={fusionResult} />
 
           {/* f) Recommended Response Protocol */}

@@ -12,9 +12,11 @@ const TONES: BlobTone[] = ['idle', 'low', 'medium', 'high', 'critical'];
 // Pre-built radial gradients with multiple soft color stops & transparent edges (no blur filters required)
 const TONE_GRADIENTS: Record<BlobTone, string> = {
   idle: `
-    radial-gradient(ellipse 65% 65% at 36% 36%, rgba(181, 240, 255, 0.75) 0%, rgba(181, 240, 255, 0.40) 40%, rgba(181, 240, 255, 0.12) 65%, transparent 80%),
-    radial-gradient(ellipse 60% 60% at 64% 60%, rgba(111, 163, 255, 0.65) 0%, rgba(165, 180, 252, 0.40) 45%, rgba(165, 180, 252, 0.10) 70%, transparent 85%),
-    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(0, 55, 255, 0.25) 0%, rgba(0, 55, 255, 0.08) 50%, transparent 75%)
+    radial-gradient(ellipse 48% 48% at 32% 30%, var(--blob-idle-glint, rgba(214, 218, 226, 0.45)) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 55% at 50% 50%, var(--blob-idle-core, rgba(24, 26, 32, 0.42)) 0%, rgba(24, 26, 32, 0.22) 45%, transparent 75%),
+    radial-gradient(ellipse 65% 65% at 46% 54%, var(--blob-idle-mid, rgba(72, 77, 89, 0.34)) 0%, rgba(72, 77, 89, 0.14) 55%, transparent 80%),
+    radial-gradient(ellipse 70% 70% at 58% 48%, var(--blob-idle-outer, rgba(142, 149, 163, 0.26)) 0%, rgba(142, 149, 163, 0.08) 60%, transparent 85%),
+    radial-gradient(ellipse 60% 60% at 42% 62%, var(--blob-idle-warm, rgba(120, 112, 108, 0.12)) 0%, transparent 75%)
   `,
   low: `
     radial-gradient(ellipse 65% 65% at 36% 36%, rgba(187, 247, 208, 0.75) 0%, rgba(134, 239, 172, 0.40) 40%, rgba(134, 239, 172, 0.12) 65%, transparent 80%),
@@ -129,7 +131,7 @@ export const GradientBlob: React.FC<GradientBlobProps> = React.memo(({
               className="absolute inset-0 rounded-full transition-opacity duration-700 ease-out"
               style={{
                 background: TONE_GRADIENTS[t],
-                opacity: tone === t ? 0.9 : 0,
+                opacity: tone === t ? (t === 'idle' ? 'var(--blob-idle-opacity, 0.85)' : 0.9) : 0,
                 contain: 'paint',
               }}
             />

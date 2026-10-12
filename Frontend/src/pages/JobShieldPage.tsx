@@ -1,7 +1,9 @@
 import React, { useEffect, useCallback, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAnalysisStore } from '../store/useAnalysisStore';
 import { api } from '../services/api';
 import type { JobShieldResult } from '../types/analysis';
+import { SAMPLE_SCAM_HOSPITAL } from '../services/mocks/jobSamples';
 import { JobShieldHeader } from '../components/job/JobShieldHeader';
 import { JobInputSection } from '../components/job/JobInputSection';
 import { JobScanningView } from '../components/job/JobScanningView';
@@ -16,13 +18,18 @@ import { AlertCircle, RefreshCw } from 'lucide-react';
 import { MonoLabel } from '../components/ui/MonoLabel';
 
 export const JobShieldPage: React.FC = React.memo(() => {
+  const [searchParams] = useSearchParams();
   const jobShieldState = useAnalysisStore((s) => s.jobShieldState);
   const jobResult = useAnalysisStore((s) => s.jobResult);
+  const setJobInput = useAnalysisStore((s) => s.setJobInput);
   const setJobShieldState = useAnalysisStore((s) => s.setJobShieldState);
   const setJobResult = useAnalysisStore((s) => s.setJobResult);
   const resetJobShield = useAnalysisStore((s) => s.resetJobShield);
   const setBlobTone = useAnalysisStore((s) => s.setBlobTone);
   const setShieldResult = useAnalysisStore((s) => s.setShieldResult);
+
+  // Guard to ensure demo auto-run executes only once per visit
+  const hasAutoRunRef = useRef(false);
 
   // Cached pending result while scanning view runs its 4s animation
   const pendingResultRef = useRef<JobShieldResult | null>(null);
@@ -87,6 +94,15 @@ export const JobShieldPage: React.FC = React.memo(() => {
     },
     [setJobShieldState]
   );
+
+  // Auto-run support for demo mode: loads scam1 sample and runs scan automatically
+  useEffect(() => {
+    if (searchParams.get('demo') === '1' && !hasAutoRunRef.current && jobShieldState === 'idle') {
+      hasAutoRunRef.current = true;
+      setJobInput({ text: SAMPLE_SCAM_HOSPITAL, fileName: null });
+      handleScan({ text: SAMPLE_SCAM_HOSPITAL, file: null });
+    }
+  }, [searchParams, jobShieldState, setJobInput, handleScan]);
 
   const handleScanComplete = useCallback(() => {
     if (pendingResultRef.current) {
@@ -187,7 +203,7 @@ export const JobShieldPage: React.FC = React.memo(() => {
           {/* e) Company MCA21 Registry Verification */}
           <JobCompanyVerification company={jobResult.company} />
 
-          {/* f) AI Forensics Report with English/Hinglish */}
+          {/* f) AI Forensics Report */}
           <JobAiAnalysis ai={jobResult.ai} />
 
           {/* g) Safe Next Step Card & Cybercrime Helpline */}
