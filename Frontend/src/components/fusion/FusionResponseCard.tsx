@@ -132,11 +132,10 @@ NOTE: Early warning assessment, not legal proof.`;
             <button
               type="button"
               onClick={handleNotifyContact}
-              className={`px-4 py-2.5 rounded-xl border font-mono-label text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer ${
-                trustedContactAlerted
+              className={`px-4 py-2.5 rounded-xl border font-mono-label text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer ${trustedContactAlerted
                   ? 'bg-[#16A34A]/20 border-[#16A34A]/40 text-[#4ADE80]'
                   : 'bg-[#0037FF] hover:bg-[#0030E0] border-[#0037FF] text-white'
-              }`}
+                }`}
             >
               {trustedContactAlerted ? (
                 <>

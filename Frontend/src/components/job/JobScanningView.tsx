@@ -40,15 +40,14 @@ const SourceRowItem: React.FC<{
     <div className="flex items-center justify-between py-3.5 border-b border-[#0A0A0A]/10 text-xs sm:text-sm font-mono-label">
       <div className="flex items-center gap-2.5">
         <span
-          className={`w-2 h-2 rounded-full ${
-            isChecking
+          className={`w-2 h-2 rounded-full ${isChecking
               ? 'bg-[#F5B800] animate-pulse'
               : status === 'clean'
-              ? 'bg-[#10B981]'
-              : status === 'suspicious'
-              ? 'bg-[#F59E0B]'
-              : 'bg-[#EF4444]'
-          }`}
+                ? 'bg-[#10B981]'
+                : status === 'suspicious'
+                  ? 'bg-[#F59E0B]'
+                  : 'bg-[#EF4444]'
+            }`}
           style={{ willChange: 'opacity' }}
         />
         <span className="text-[#0A0A0A] font-medium tracking-wider">{name}</span>
@@ -61,13 +60,12 @@ const SourceRowItem: React.FC<{
           </span>
         ) : (
           <span
-            className={`px-2 py-0.5 rounded text-[11px] font-bold tracking-widest uppercase ${
-              status === 'clean'
+            className={`px-2 py-0.5 rounded text-[11px] font-bold tracking-widest uppercase ${status === 'clean'
                 ? 'bg-[#10B981]/10 text-[#059669]'
                 : status === 'suspicious'
-                ? 'bg-[#F59E0B]/10 text-[#D97706]'
-                : 'bg-[#EF4444]/10 text-[#DC2626]'
-            }`}
+                  ? 'bg-[#F59E0B]/10 text-[#D97706]'
+                  : 'bg-[#EF4444]/10 text-[#DC2626]'
+              }`}
           >
             {status}
           </span>
@@ -254,24 +252,22 @@ export const JobScanningView: React.FC<JobScanningViewProps> = React.memo(
                   className="relative z-10 flex flex-col items-center bg-white px-2 sm:px-4"
                 >
                   <div
-                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-mono font-bold transition-opacity duration-300 ${
-                      isDone
+                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-mono font-bold transition-opacity duration-300 ${isDone
                         ? 'bg-[#0A0A0A] text-white'
                         : isActive
-                        ? 'bg-[#F5B800] text-[#0A0A0A] ring-4 ring-[#F5B800]/20'
-                        : 'bg-white border border-[#0A0A0A]/30 text-[#6B6F76] opacity-60'
-                    }`}
+                          ? 'bg-[#F5B800] text-[#0A0A0A] ring-4 ring-[#F5B800]/20'
+                          : 'bg-white border border-[#0A0A0A]/30 text-[#6B6F76] opacity-60'
+                      }`}
                   >
                     {isDone ? <Check className="w-4 h-4 stroke-[2.5]" /> : idx + 1}
                   </div>
                   <span
-                    className={`mt-2 font-mono-label text-[10px] sm:text-xs tracking-wider transition-opacity duration-300 text-center ${
-                      isActive
+                    className={`mt-2 font-mono-label text-[10px] sm:text-xs tracking-wider transition-opacity duration-300 text-center ${isActive
                         ? 'text-[#0A0A0A] font-bold'
                         : isDone
-                        ? 'text-[#0A0A0A]'
-                        : 'text-[#6B6F76] opacity-60'
-                    }`}
+                          ? 'text-[#0A0A0A]'
+                          : 'text-[#6B6F76] opacity-60'
+                      }`}
                   >
                     {stepName}
                   </span>

@@ -12,18 +12,18 @@
     --accent: #0037FF;
     --accent-soft: rgba(0, 55, 255, 0.08);
     --accent-glow: rgba(0, 55, 255, 0.18);
-    
+
     --blob-cyan: #B5F0FF;
     --blob-blue: #6FA3FF;
     --blob-peri: #A5B4FC;
-    
+
     --blob-idle-core: rgba(24, 26, 32, 0.42);
     --blob-idle-mid: rgba(72, 77, 89, 0.34);
     --blob-idle-outer: rgba(142, 149, 163, 0.26);
     --blob-idle-glint: rgba(214, 218, 226, 0.45);
     --blob-idle-warm: rgba(120, 112, 108, 0.12);
     --blob-idle-opacity: 0.85;
-    
+
     --risk-low: #16A34A;
     --risk-medium: #F59E0B;
     --risk-high: #F97316;
@@ -60,18 +60,22 @@
     width: 6px;
     height: 6px;
   }
+
   ::-webkit-scrollbar-track {
     background: transparent;
   }
+
   ::-webkit-scrollbar-thumb {
     background: rgba(10, 10, 10, 0.15);
     border-radius: 9999px;
   }
+
   ::-webkit-scrollbar-thumb:hover {
     background: rgba(10, 10, 10, 0.3);
   }
 
   @media (prefers-reduced-motion: reduce) {
+
     *,
     ::before,
     ::after {
@@ -122,12 +126,15 @@
   0% {
     transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
   }
+
   33% {
     transform: translate3d(30px, -22px, 0) scale(1.04) rotate(3deg);
   }
+
   66% {
     transform: translate3d(-24px, 18px, 0) scale(0.97) rotate(-3deg);
   }
+
   100% {
     transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
   }
@@ -169,6 +176,7 @@
   .hairline-row-hover::before {
     transition: none !important;
   }
+
   .blob-drift-anim {
     animation: none !important;
   }
@@ -176,10 +184,13 @@
 
 /* SVG Illustration Animations (CSS transform & opacity only) */
 @keyframes laser-scan {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translate3d(0, 0, 0);
     opacity: 0.3;
   }
+
   50% {
     transform: translate3d(0, 125px, 0);
     opacity: 1;
@@ -187,19 +198,25 @@
 }
 
 @keyframes chat-float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translate3d(0, 0, 0);
   }
+
   50% {
     transform: translate3d(0, -6px, 0);
   }
 }
 
 @keyframes pulse-ring {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(0.95);
     opacity: 0.2;
   }
+
   50% {
     transform: scale(1.08);
     opacity: 0.7;
@@ -207,9 +224,12 @@
 }
 
 @keyframes voice-bar-bounce {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scaleY(1);
   }
+
   50% {
     transform: scaleY(0.4);
   }
@@ -219,6 +239,7 @@
   0% {
     transform: translateX(-100%);
   }
+
   100% {
     transform: translateX(200%);
   }
@@ -229,6 +250,7 @@
 }
 
 @media print {
+
   header,
   footer,
   nav,
@@ -237,6 +259,7 @@
   a {
     display: none !important;
   }
+
   body,
   #root,
   main {
@@ -245,6 +268,7 @@
     padding: 0 !important;
     margin: 0 !important;
   }
+
   .print-only-report {
     display: block !important;
     border: 1px solid #000000 !important;
@@ -258,5 +282,3 @@
     padding: 24px !important;
   }
 }
-
-

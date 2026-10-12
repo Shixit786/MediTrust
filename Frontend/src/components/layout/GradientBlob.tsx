@@ -121,9 +121,8 @@ export const GradientBlob: React.FC<GradientBlobProps> = React.memo(({
       >
         {/* Container for idle drift animation (CSS transform keyframe only) */}
         <div
-          className={`relative w-[480px] h-[480px] sm:w-[700px] sm:h-[700px] lg:w-[1020px] lg:h-[1020px] rounded-full will-change-transform ${
-            lowPower ? '' : 'blob-drift-anim'
-          } ${isPaused ? 'animation-paused' : ''}`}
+          className={`relative w-[480px] h-[480px] sm:w-[700px] sm:h-[700px] lg:w-[1020px] lg:h-[1020px] rounded-full will-change-transform ${lowPower ? '' : 'blob-drift-anim'
+            } ${isPaused ? 'animation-paused' : ''}`}
         >
           {TONES.map((t) => (
             <div

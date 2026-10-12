@@ -79,20 +79,18 @@ export const SimFreezeProtocolPanel: React.FC<SimFreezeProtocolPanelProps> = Rea
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-xs text-white/50">0{idx + 1}</span>
                   <div
-                    className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] transition-colors ${
-                      isDone
+                    className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] transition-colors ${isDone
                         ? 'bg-[#10B981] text-white'
                         : 'border border-white/20 text-white/40'
-                    }`}
+                      }`}
                   >
                     {isDone ? <Check className="w-3 h-3 stroke-[2.5]" /> : ''}
                   </div>
                 </div>
 
                 <span
-                  className={`font-mono text-xs tracking-wider transition-opacity duration-300 ${
-                    isDone ? 'text-white font-bold' : 'text-white/40'
-                  }`}
+                  className={`font-mono text-xs tracking-wider transition-opacity duration-300 ${isDone ? 'text-white font-bold' : 'text-white/40'
+                    }`}
                 >
                   {step}
                 </span>
@@ -117,11 +115,10 @@ export const SimFreezeProtocolPanel: React.FC<SimFreezeProtocolPanelProps> = Rea
             <button
               onClick={handleNotifyClick}
               disabled={trustedContactAlerted}
-              className={`inline-flex items-center gap-2 px-5 py-3 rounded-xl font-mono text-xs font-semibold tracking-wider transition-colors border active:scale-[0.98] ${
-                trustedContactAlerted
+              className={`inline-flex items-center gap-2 px-5 py-3 rounded-xl font-mono text-xs font-semibold tracking-wider transition-colors border active:scale-[0.98] ${trustedContactAlerted
                   ? 'bg-[#10B981]/20 text-[#10B981] border-[#10B981]/40'
                   : 'bg-[#FF4FA3] hover:bg-[#ff3b99] text-[#0A0A0A] border-[#FF4FA3]'
-              }`}
+                }`}
             >
               <UserCheck className="w-4 h-4" />
               <span>

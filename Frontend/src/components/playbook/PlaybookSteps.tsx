@@ -179,9 +179,8 @@ export const PlaybookSteps: React.FC<PlaybookStepsProps> = React.memo(
                   borderBottom={false}
                   interactive={true}
                   onClick={() => toggleStep(step.id)}
-                  className={`p-4 sm:p-5 transition-colors ${
-                    isChecked ? 'bg-[#F0F0F0]/50' : 'bg-white'
-                  }`}
+                  className={`p-4 sm:p-5 transition-colors ${isChecked ? 'bg-[#F0F0F0]/50' : 'bg-white'
+                    }`}
                 >
                   <label
                     htmlFor={step.id}
@@ -204,9 +203,8 @@ export const PlaybookSteps: React.FC<PlaybookStepsProps> = React.memo(
                     </div>
                     <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <span
-                        className={`font-['Inter_Tight'] text-sm sm:text-base leading-relaxed ${
-                          isChecked ? 'line-through text-[#6B6F76]' : 'text-[#0A0A0A]'
-                        }`}
+                        className={`font-['Inter_Tight'] text-sm sm:text-base leading-relaxed ${isChecked ? 'line-through text-[#6B6F76]' : 'text-[#0A0A0A]'
+                          }`}
                       >
                         {step.text}
                       </span>
@@ -241,9 +239,8 @@ export const PlaybookSteps: React.FC<PlaybookStepsProps> = React.memo(
           </div>
 
           <div
-            className={`flex flex-col bg-white rounded-[20px] border overflow-hidden ${
-              hasSim ? 'border-[#FF4FA3]/60 shadow-sm' : 'border-[#0A0A0A]'
-            }`}
+            className={`flex flex-col bg-white rounded-[20px] border overflow-hidden ${hasSim ? 'border-[#FF4FA3]/60 shadow-sm' : 'border-[#0A0A0A]'
+              }`}
           >
             {stageBSteps.map((step, idx) => {
               const isChecked = !!checkedState[step.id];
@@ -254,9 +251,8 @@ export const PlaybookSteps: React.FC<PlaybookStepsProps> = React.memo(
                   borderBottom={false}
                   interactive={true}
                   onClick={() => toggleStep(step.id)}
-                  className={`p-4 sm:p-5 transition-colors ${
-                    isChecked ? 'bg-[#F0F0F0]/50' : 'bg-white'
-                  }`}
+                  className={`p-4 sm:p-5 transition-colors ${isChecked ? 'bg-[#F0F0F0]/50' : 'bg-white'
+                    }`}
                 >
                   <label
                     htmlFor={step.id}
@@ -279,9 +275,8 @@ export const PlaybookSteps: React.FC<PlaybookStepsProps> = React.memo(
                     </div>
                     <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <span
-                        className={`font-['Inter_Tight'] text-sm sm:text-base leading-relaxed ${
-                          isChecked ? 'line-through text-[#6B6F76]' : 'text-[#0A0A0A]'
-                        }`}
+                        className={`font-['Inter_Tight'] text-sm sm:text-base leading-relaxed ${isChecked ? 'line-through text-[#6B6F76]' : 'text-[#0A0A0A]'
+                          }`}
                       >
                         {step.text}
                       </span>
@@ -317,9 +312,8 @@ export const PlaybookSteps: React.FC<PlaybookStepsProps> = React.memo(
                   borderBottom={false}
                   interactive={true}
                   onClick={() => toggleStep(step.id)}
-                  className={`p-4 sm:p-5 transition-colors ${
-                    isChecked ? 'bg-[#F0F0F0]/50' : 'bg-white'
-                  }`}
+                  className={`p-4 sm:p-5 transition-colors ${isChecked ? 'bg-[#F0F0F0]/50' : 'bg-white'
+                    }`}
                 >
                   <label
                     htmlFor={step.id}
@@ -342,9 +336,8 @@ export const PlaybookSteps: React.FC<PlaybookStepsProps> = React.memo(
                     </div>
                     <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <span
-                        className={`font-['Inter_Tight'] text-sm sm:text-base leading-relaxed ${
-                          isChecked ? 'line-through text-[#6B6F76]' : 'text-[#0A0A0A]'
-                        }`}
+                        className={`font-['Inter_Tight'] text-sm sm:text-base leading-relaxed ${isChecked ? 'line-through text-[#6B6F76]' : 'text-[#0A0A0A]'
+                          }`}
                       >
                         {step.text}
                       </span>

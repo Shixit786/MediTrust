@@ -46,11 +46,10 @@ export const FusionAttackChain: React.FC<FusionAttackChainProps> = React.memo(({
                   delay: skipMotion ? 0 : 0.1 * idx,
                   ease: 'easeOut',
                 }}
-                className={`rounded-[20px] p-6 flex flex-col justify-between min-h-[300px] transition-colors ${
-                  isNotDetected
+                className={`rounded-[20px] p-6 flex flex-col justify-between min-h-[300px] transition-colors ${isNotDetected
                     ? 'bg-white/60 border border-dashed border-[#0A0A0A]/25 opacity-75'
                     : 'bg-white border border-[#0A0A0A]'
-                }`}
+                  }`}
               >
                 <div>
                   {/* Top: Step Number + Status Chip */}

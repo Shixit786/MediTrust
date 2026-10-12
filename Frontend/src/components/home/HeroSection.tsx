@@ -170,8 +170,8 @@ export const HeroSection: React.FC = React.memo(() => {
                   prefersReduced || isLowTier
                     ? {}
                     : {
-                        y: [-12, 24],
-                      }
+                      y: [-12, 24],
+                    }
                 }
                 transition={{
                   repeat: Infinity,

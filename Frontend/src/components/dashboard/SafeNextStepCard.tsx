@@ -130,11 +130,10 @@ export const SafeNextStepCard: React.FC = React.memo(() => {
         <button
           type="button"
           onClick={handleNotifyContact}
-          className={`px-6 py-3.5 rounded-[16px] font-['Inter_Tight'] text-sm font-semibold flex items-center justify-center gap-2.5 transition-all duration-200 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-white ${
-            trustedContactAlerted
-              ? 'bg-[#16A34A] text-white'
-              : 'bg-white text-[#0A0A0A] hover:bg-[#E5E5E5]'
-          }`}
+          className={`px-6 py-3.5 rounded-[16px] font-['Inter_Tight'] text-sm font-semibold flex items-center justify-center gap-2.5 transition-all duration-200 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-white ${trustedContactAlerted
+            ? 'bg-[#16A34A] text-white'
+            : 'bg-white text-[#0A0A0A] hover:bg-[#E5E5E5]'
+            }`}
         >
           {trustedContactAlerted ? (
             <>

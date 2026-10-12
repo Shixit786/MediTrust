@@ -171,9 +171,8 @@ export const FusionEngineBand: React.FC = React.memo(() => {
             {demoSequenceSteps.map((item, idx) => (
               <div
                 key={item.step}
-                className={`flex flex-col p-3 rounded-lg ${
-                  idx < 3 ? 'lg:border-r border-[#0A0A0A]/15' : ''
-                }`}
+                className={`flex flex-col p-3 rounded-lg ${idx < 3 ? 'lg:border-r border-[#0A0A0A]/15' : ''
+                  }`}
               >
                 <span className="font-mono-label text-xs text-[#0037FF] font-bold">
                   {item.step}

@@ -125,7 +125,7 @@ export const ShieldIllustration: React.FC<ShieldIllustrationProps> = React.memo(
             <rect x="75" y="35" width="115" height="150" rx="6" fill="#F0F0F0" stroke="#0A0A0A" strokeWidth="1.5" strokeOpacity="0.3" />
             {/* Main Sheet */}
             <rect x="65" y="25" width="120" height="155" rx="8" fill="#FFFFFF" stroke="#0A0A0A" strokeWidth="2.5" />
-            
+
             {/* Folded corner */}
             <path d="M160 25 L185 50 H160 V25 Z" fill="#F0F0F0" stroke="#0A0A0A" strokeWidth="2" strokeLinejoin="round" />
 
@@ -167,7 +167,7 @@ export const ShieldIllustration: React.FC<ShieldIllustrationProps> = React.memo(
               strokeWidth="2.5"
               strokeLinejoin="round"
             />
-            
+
             {/* Chat text lines */}
             <line x1="170" y1="120" x2="205" y2="120" stroke="#0A0A0A" strokeWidth="2" strokeLinecap="round" />
             <line x1="170" y1="135" x2="215" y2="135" stroke="#0A0A0A" strokeWidth="2" strokeLinecap="round" strokeOpacity="0.4" />
@@ -239,7 +239,7 @@ export const ShieldIllustration: React.FC<ShieldIllustrationProps> = React.memo(
         <line x1="150" y1="58" x2="170" y2="58" stroke="#0A0A0A" strokeWidth="2" strokeLinecap="round" />
 
         <rect x="140" y="80" width="40" height="48" rx="8" stroke={accentColor} strokeWidth="1.5" fill={accentColor} fillOpacity="0.1" />
-        
+
         <rect x="148" y="112" width="3" height="6" fill="#0A0A0A" rx="1" />
         <rect x="154" y="108" width="3" height="10" fill="#0A0A0A" rx="1" />
         <rect x="160" y="102" width="3" height="16" fill="#0A0A0A" rx="1" />

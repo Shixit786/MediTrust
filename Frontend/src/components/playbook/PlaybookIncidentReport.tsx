@@ -29,12 +29,12 @@ export const PlaybookIncidentReport: React.FC<PlaybookIncidentReportProps> = Rea
       const level = fusionResult
         ? fusionResult.level.toUpperCase()
         : overallRisk >= 80
-        ? 'CRITICAL'
-        : overallRisk >= 60
-        ? 'HIGH'
-        : overallRisk >= 30
-        ? 'MEDIUM'
-        : 'LOW';
+          ? 'CRITICAL'
+          : overallRisk >= 60
+            ? 'HIGH'
+            : overallRisk >= 30
+              ? 'MEDIUM'
+              : 'LOW';
 
       const pattern = fusionResult
         ? fusionResult.pattern
@@ -43,10 +43,10 @@ export const PlaybookIncidentReport: React.FC<PlaybookIncidentReportProps> = Rea
       const actions = fusionResult
         ? fusionResult.actions
         : [
-            'Stop communication with the suspect sender immediately.',
-            'Do not share any OTP, PIN, password, or financial credential.',
-            'Contact the National Cyber Crime Helpline at 1930.',
-          ];
+          'Stop communication with the suspect sender immediately.',
+          'Do not share any OTP, PIN, password, or financial credential.',
+          'Contact the National Cyber Crime Helpline at 1930.',
+        ];
 
       return {
         reportId,

@@ -128,9 +128,8 @@ export const JobInputSection: React.FC<JobInputSectionProps> = React.memo(({ onS
             aria-selected={activeTab === 'message'}
             aria-controls="panel-message"
             onClick={() => setActiveTab('message')}
-            className={`font-['Inter_Tight'] font-semibold text-sm sm:text-base tracking-wide transition-colors duration-200 cursor-pointer bg-transparent border-none py-1 ${
-              activeTab === 'message' ? 'text-[#0A0A0A]' : 'text-[#6B6F76] hover:text-[#0A0A0A]'
-            }`}
+            className={`font-['Inter_Tight'] font-semibold text-sm sm:text-base tracking-wide transition-colors duration-200 cursor-pointer bg-transparent border-none py-1 ${activeTab === 'message' ? 'text-[#0A0A0A]' : 'text-[#6B6F76] hover:text-[#0A0A0A]'
+              }`}
           >
             <span>MESSAGE</span>
           </button>
@@ -141,9 +140,8 @@ export const JobInputSection: React.FC<JobInputSectionProps> = React.memo(({ onS
             aria-selected={activeTab === 'pdf'}
             aria-controls="panel-pdf"
             onClick={() => setActiveTab('pdf')}
-            className={`font-['Inter_Tight'] font-semibold text-sm sm:text-base tracking-wide transition-colors duration-200 cursor-pointer bg-transparent border-none py-1 ${
-              activeTab === 'pdf' ? 'text-[#0A0A0A]' : 'text-[#6B6F76] hover:text-[#0A0A0A]'
-            }`}
+            className={`font-['Inter_Tight'] font-semibold text-sm sm:text-base tracking-wide transition-colors duration-200 cursor-pointer bg-transparent border-none py-1 ${activeTab === 'pdf' ? 'text-[#0A0A0A]' : 'text-[#6B6F76] hover:text-[#0A0A0A]'
+              }`}
           >
             <span>PDF OFFER</span>
           </button>
@@ -181,9 +179,8 @@ export const JobInputSection: React.FC<JobInputSectionProps> = React.memo(({ onS
                 </span>
 
                 <span
-                  className={`font-mono-label text-[11px] tabular-nums ${
-                    isTextTooLong ? 'text-[#E11D2E] font-bold' : 'text-[#6B6F76]'
-                  }`}
+                  className={`font-mono-label text-[11px] tabular-nums ${isTextTooLong ? 'text-[#E11D2E] font-bold' : 'text-[#6B6F76]'
+                    }`}
                 >
                   {text.length} / {MAX_CHARS}
                 </span>
@@ -214,11 +211,10 @@ export const JobInputSection: React.FC<JobInputSectionProps> = React.memo(({ onS
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onClick={() => fileInputRef.current?.click()}
-                className={`w-full min-h-[220px] rounded-[20px] border-2 border-dashed transition-colors duration-200 p-8 flex flex-col items-center justify-center text-center cursor-pointer select-none bg-white ${
-                  isDragOver
-                    ? 'border-[#F5B800] bg-[#F5B800]/5'
-                    : 'border-[#0A0A0A]/30 hover:border-[#0A0A0A]'
-                }`}
+                className={`w-full min-h-[220px] rounded-[20px] border-2 border-dashed transition-colors duration-200 p-8 flex flex-col items-center justify-center text-center cursor-pointer select-none bg-white ${isDragOver
+                  ? 'border-[#F5B800] bg-[#F5B800]/5'
+                  : 'border-[#0A0A0A]/30 hover:border-[#0A0A0A]'
+                  }`}
               >
                 <div className="w-12 h-12 rounded-full bg-[#F5B800]/15 flex items-center justify-center mb-3">
                   <FileUp className="w-6 h-6 text-[#0A0A0A]" />

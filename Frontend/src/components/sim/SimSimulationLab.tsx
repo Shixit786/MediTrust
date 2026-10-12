@@ -23,12 +23,12 @@ const ATTACK_CHAIN_ITEMS: Array<{
   id: 'baseline' | 'location' | 'device' | 'otp' | 'freeze';
   label: string;
 }> = [
-  { id: 'baseline', label: 'BASELINE' },
-  { id: 'location', label: 'LOCATION' },
-  { id: 'device', label: 'DEVICE' },
-  { id: 'otp', label: 'OTP' },
-  { id: 'freeze', label: 'FREEZE' },
-];
+    { id: 'baseline', label: 'BASELINE' },
+    { id: 'location', label: 'LOCATION' },
+    { id: 'device', label: 'DEVICE' },
+    { id: 'otp', label: 'OTP' },
+    { id: 'freeze', label: 'FREEZE' },
+  ];
 
 export const SimSimulationLab: React.FC<SimSimulationLabProps> = React.memo(
   ({
@@ -91,18 +91,16 @@ export const SimSimulationLab: React.FC<SimSimulationLabProps> = React.memo(
                   className="relative z-10 flex flex-col items-center bg-white px-2 sm:px-3"
                 >
                   <div
-                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-mono font-bold transition-opacity duration-300 ${
-                      isDone
+                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-mono font-bold transition-opacity duration-300 ${isDone
                         ? 'bg-[#FF4FA3] text-white ring-4 ring-[#FF4FA3]/20'
                         : 'bg-white border border-[#0A0A0A]/30 text-[#6B6F76] opacity-60'
-                    }`}
+                      }`}
                   >
                     {isDone ? <Check className="w-4 h-4 stroke-[2.5]" /> : idx + 1}
                   </div>
                   <span
-                    className={`mt-2 font-mono-label text-[10px] sm:text-xs tracking-wider transition-opacity duration-300 text-center ${
-                      isDone ? 'text-[#0A0A0A] font-bold' : 'text-[#6B6F76] opacity-60'
-                    }`}
+                    className={`mt-2 font-mono-label text-[10px] sm:text-xs tracking-wider transition-opacity duration-300 text-center ${isDone ? 'text-[#0A0A0A] font-bold' : 'text-[#6B6F76] opacity-60'
+                      }`}
                   >
                     {item.label}
                   </span>

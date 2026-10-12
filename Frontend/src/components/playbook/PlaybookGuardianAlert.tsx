@@ -363,13 +363,12 @@ export const PlaybookGuardianAlert: React.FC<PlaybookGuardianAlertProps> = React
               type="button"
               disabled={!savedContact || !!sendProgress}
               onClick={handleSendAlert}
-              className={`px-4 py-2.5 rounded-xl font-mono-label text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer ${
-                !savedContact
+              className={`px-4 py-2.5 rounded-xl font-mono-label text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer ${!savedContact
                   ? 'bg-[#0A0A0A]/20 text-[#0A0A0A]/40 border border-transparent cursor-not-allowed'
                   : trustedContactAlerted
-                  ? 'bg-[#16A34A] text-white border border-[#16A34A]'
-                  : 'bg-[#0037FF] hover:bg-[#0030E0] text-white border border-[#0037FF]'
-              }`}
+                    ? 'bg-[#16A34A] text-white border border-[#16A34A]'
+                    : 'bg-[#0037FF] hover:bg-[#0030E0] text-white border border-[#0037FF]'
+                }`}
             >
               {trustedContactAlerted ? (
                 <>

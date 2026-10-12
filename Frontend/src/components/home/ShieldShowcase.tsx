@@ -125,9 +125,8 @@ export const ShieldShowcase: React.FC = React.memo(() => {
             >
               {/* Illustration Card */}
               <div
-                className={`relative bg-white rounded-[20px] border border-[#0A0A0A] p-8 sm:p-10 flex flex-col justify-between min-h-[380px] sm:min-h-[440px] overflow-hidden ${
-                  isEven ? 'lg:order-2' : 'lg:order-1'
-                }`}
+                className={`relative bg-white rounded-[20px] border border-[#0A0A0A] p-8 sm:p-10 flex flex-col justify-between min-h-[380px] sm:min-h-[440px] overflow-hidden ${isEven ? 'lg:order-2' : 'lg:order-1'
+                  }`}
               >
                 <div className="flex items-center justify-between z-10">
                   <MonoLabel color="muted" className="text-xs">
@@ -157,9 +156,8 @@ export const ShieldShowcase: React.FC = React.memo(() => {
 
               {/* Info Panel */}
               <div
-                className={`relative rounded-[20px] border border-[#0A0A0A] p-8 sm:p-10 flex flex-col justify-between min-h-[380px] sm:min-h-[440px] ${
-                  isEven ? 'lg:order-1' : 'lg:order-2'
-                }`}
+                className={`relative rounded-[20px] border border-[#0A0A0A] p-8 sm:p-10 flex flex-col justify-between min-h-[380px] sm:min-h-[440px] ${isEven ? 'lg:order-1' : 'lg:order-2'
+                  }`}
                 style={{ backgroundColor: shield.bgTint }}
               >
                 <div>

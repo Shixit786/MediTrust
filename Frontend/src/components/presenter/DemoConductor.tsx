@@ -237,9 +237,8 @@ export const DemoConductor: React.FC = React.memo(() => {
 
       {/* Screen-reader announcement */}
       <div className="sr-only" aria-live="polite">
-        {`Presenter Step ${presenter.step + 1} of 5: ${STEPS[presenter.step].label} ${
-          STEPS[presenter.step].name
-        }`}
+        {`Presenter Step ${presenter.step + 1} of 5: ${STEPS[presenter.step].label} ${STEPS[presenter.step].name
+          }`}
       </div>
 
       {/* Main Bar Content */}
@@ -256,11 +255,10 @@ export const DemoConductor: React.FC = React.memo(() => {
                 type="button"
                 onClick={() => goToStep(s.id)}
                 aria-label={`Jump to step ${s.label} ${s.name}${isDone ? ' (Completed)' : ''}`}
-                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-mono transition-all duration-150 cursor-pointer select-none shrink-0 ${
-                  isCurrent
-                    ? 'bg-white text-[#0A0A0A] font-bold shadow-sm'
-                    : 'text-white/70 hover:text-white hover:bg-white/10 font-medium'
-                }`}
+                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-mono transition-all duration-150 cursor-pointer select-none shrink-0 ${isCurrent
+                  ? 'bg-white text-[#0A0A0A] font-bold shadow-sm'
+                  : 'text-white/70 hover:text-white hover:bg-white/10 font-medium'
+                  }`}
               >
                 <span>{s.label}</span>
                 <span className="hidden xs:inline">{s.name}</span>
@@ -305,11 +303,10 @@ export const DemoConductor: React.FC = React.memo(() => {
               type="button"
               onClick={toggleAutoplay}
               aria-label={presenter.autoplay ? 'Pause Auto-Play' : 'Start Auto-Play'}
-              className={`px-2.5 sm:px-3 py-1 rounded-md flex items-center gap-1.5 transition-colors cursor-pointer ${
-                presenter.autoplay
-                  ? 'bg-[#0037FF] text-white font-semibold'
-                  : 'text-white/80 hover:text-white hover:bg-white/10'
-              }`}
+              className={`px-2.5 sm:px-3 py-1 rounded-md flex items-center gap-1.5 transition-colors cursor-pointer ${presenter.autoplay
+                ? 'bg-[#0037FF] text-white font-semibold'
+                : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
             >
               {presenter.autoplay ? (
                 <>

@@ -54,7 +54,7 @@ export const JobResultVerdict: React.FC<JobResultVerdictProps> = React.memo(
       result.level === 'low'
         ? 'Verified communication: authentic recruiter signatures and legitimate domain origins.'
         : result.threat ||
-          'High-risk job fraud: fee demand, OTP request and a look-alike hospital domain.';
+        'High-risk job fraud: fee demand, OTP request and a look-alike hospital domain.';
 
     return (
       <section
