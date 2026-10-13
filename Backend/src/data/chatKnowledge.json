@@ -1,0 +1,129 @@
+{
+  "topics": [
+    {
+      "id": "voice_shield_purpose",
+      "topic": "Voice Shield Purpose",
+      "facts": "Voice Shield inspects audio recordings for synthetic speech, AI voice clones, and acoustic manipulation using 9 spectral and glottal feature extractors."
+    },
+    {
+      "id": "voice_shield_limits",
+      "topic": "Voice Shield Limitations",
+      "facts": "Voice Shield is a heuristic indicator, not absolute proof. Advanced neural voice models can evade detection, and low-quality genuine phone audio can display synthetic anomalies."
+    },
+    {
+      "id": "job_shield_purpose",
+      "topic": "Job Shield Purpose",
+      "facts": "Job Shield scans recruitment messages, offer letters, and PDFs for phishing links, fee demands, fake domain impersonation, and fraudulent hiring language."
+    },
+    {
+      "id": "job_shield_limits",
+      "topic": "Job Shield Limitations",
+      "facts": "Company verification in Job Shield is simulated best-effort checking against registries and heuristics. It flags risk indicators but cannot provide legal verification."
+    },
+    {
+      "id": "sim_guard_purpose",
+      "topic": "SIM Guard Purpose",
+      "facts": "SIM Guard simulates telecom network telemetry checks, detecting SIM swap indicators, suspicious IMSI changes, and carrier roaming anomalies."
+    },
+    {
+      "id": "sim_guard_limits",
+      "topic": "SIM Guard Limitations",
+      "facts": "SIM Guard is an offline educational simulation without live access to telecom operator networks. Carrier freeze actions are simulated demos."
+    },
+    {
+      "id": "fusion_engine_purpose",
+      "topic": "Fusion Engine Purpose",
+      "facts": "Fusion Engine correlates signals across Job, Voice, and SIM shields to reveal multi-stage coordinated attacks such as job lure plus voice impersonation plus SIM takeover."
+    },
+    {
+      "id": "risk_indicator_concept",
+      "topic": "Risk Indicator Meaning",
+      "facts": "Scores and levels are risk indicators representing probability and observed patterns. They provide early warning, not forensic certainty or legal proof."
+    },
+    {
+      "id": "data_privacy_storage",
+      "topic": "Data Storage and Privacy",
+      "facts": "MediTrust does not store personal audio recordings, message text, phone numbers, or chat transcripts on its servers. Scans run in-memory and are discarded."
+    },
+    {
+      "id": "presenter_mode",
+      "topic": "Presenter Mode",
+      "facts": "Presenter mode is a guided 5-stage demonstration walkthrough (Job, Voice, SIM, Fusion, Playbook). It can be toggled using Shift+D on the keyboard."
+    },
+    {
+      "id": "cybercrime_helpline",
+      "topic": "National Cyber Crime Helpline 1930",
+      "facts": "Dial 1930 in India immediately if financial fraud or unauthorized money deduction occurs. The National Cyber Crime Portal operates at cybercrime.gov.in."
+    },
+    {
+      "id": "emergency_helpline_112",
+      "topic": "National Emergency Number 112",
+      "facts": "Dial 112 for immediate physical danger, medical emergencies, police assistance, or life-threatening situations."
+    },
+    {
+      "id": "bank_otp_rule",
+      "topic": "Why Banks Never Ask for OTP",
+      "facts": "Legitimate banks, payment gateways, and hospital billing desks never ask for OTPs, UPI PINs, or net banking passwords over the phone or messages."
+    },
+    {
+      "id": "digital_arrest_myth",
+      "topic": "Digital Arrest Scams",
+      "facts": "No legitimate law enforcement agency, CBI, police, or court conducts 'digital arrests' over WhatsApp or Skype video calls or demands money to clear cases."
+    },
+    {
+      "id": "job_registration_fee_scam",
+      "topic": "Job Registration Fee Scams",
+      "facts": "Legitimate employers never demand upfront security deposits, verification charges, or laptop courier fees before hiring."
+    },
+    {
+      "id": "family_emergency_scam",
+      "topic": "Hospital and Family Emergency Scams",
+      "facts": "Scammers pose as doctors or police claiming a relative is hospitalized and demanding immediate UPI transfers. Always verify by calling the relative directly."
+    },
+    {
+      "id": "remote_access_warning",
+      "topic": "Remote Access App Danger",
+      "facts": "Never install apps like AnyDesk, TeamViewer, or QuickSupport on the instructions of an unknown caller. They grant complete control over your screen and banking apps."
+    },
+    {
+      "id": "sim_swap_indicator",
+      "topic": "Sudden SIM Inactivity",
+      "facts": "If your mobile phone suddenly loses signal for an extended period, contact your telecom carrier immediately from another phone. It may indicate an unauthorized SIM swap."
+    },
+    {
+      "id": "phishing_link_hygiene",
+      "topic": "Malicious Links and APKs",
+      "facts": "Avoid clicking shortened URLs in unsolicited SMS or WhatsApp messages. Never download .apk files sent through chat apps for appointment booking or KYC updates."
+    },
+    {
+      "id": "immediate_otp_compromise_steps",
+      "topic": "Steps After Sharing OTP",
+      "facts": "If an OTP was compromised, immediately call your bank to block cards and net banking, dial 1930, report to cybercrime.gov.in, and preserve transaction screenshots."
+    },
+    {
+      "id": "playbook_purpose",
+      "topic": "Incident Response Playbook",
+      "facts": "The Playbook page provides structured step-by-step containment checklists, emergency reporting guidance, and contact templates based on detected attack vectors."
+    },
+    {
+      "id": "medical_financial_advice_boundary",
+      "topic": "No Medical or Legal Advice",
+      "facts": "MediTrust provides technical cybersecurity risk guidance only. It does not provide medical diagnoses, legal counsel, or financial investment advice."
+    },
+    {
+      "id": "aadhaar_pan_hygiene",
+      "topic": "Identity Document Safety",
+      "facts": "Masked Aadhaar cards should be preferred over unmasked copies. Never share OTPs generated during Aadhaar authentication with any third party."
+    },
+    {
+      "id": "upi_pin_receive_myth",
+      "topic": "UPI PIN is Only for Sending Money",
+      "facts": "Entering a UPI PIN always deducts money from your account. You never need to enter a UPI PIN to receive money, refunds, or cashback."
+    },
+    {
+      "id": "doctor_identity_spoofing",
+      "topic": "Healthcare Provider Spoofing",
+      "facts": "Scammers create cloned voice notes or forged letterheads of senior hospital consultants. Cross-verify appointment changes through the hospital's official landline."
+    }
+  ]
+}

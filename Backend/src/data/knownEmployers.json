@@ -1,0 +1,167 @@
+{
+  "_note": "Illustrative list, verify before production",
+  "employers": [
+    {
+      "name": "Apollo Hospitals",
+      "aliases": ["apollo", "apollo hospital", "apollo healthcare", "apollo pharmacy"],
+      "officialDomains": ["apollohospitals.com", "apollo247.com"],
+      "type": "healthcare_private"
+    },
+    {
+      "name": "Fortis Healthcare",
+      "aliases": ["fortis", "fortis hospital", "fortis hospitals"],
+      "officialDomains": ["fortishealthcare.com"],
+      "type": "healthcare_private"
+    },
+    {
+      "name": "Max Healthcare",
+      "aliases": ["max hospital", "max hospitals", "max health"],
+      "officialDomains": ["maxhealthcare.in", "maxhealthcare.com"],
+      "type": "healthcare_private"
+    },
+    {
+      "name": "Manipal Hospitals",
+      "aliases": ["manipal", "manipal hospital", "manipal health"],
+      "officialDomains": ["manipalhospitals.com"],
+      "type": "healthcare_private"
+    },
+    {
+      "name": "Medanta",
+      "aliases": ["medanta the medicity", "medanta hospital", "medanta medicity"],
+      "officialDomains": ["medanta.org"],
+      "type": "healthcare_private"
+    },
+    {
+      "name": "Narayana Health",
+      "aliases": ["narayana hrudayalaya", "narayana hospital", "narayana"],
+      "officialDomains": ["narayanahealth.org"],
+      "type": "healthcare_private"
+    },
+    {
+      "name": "AIIMS",
+      "aliases": ["all india institute of medical sciences", "aiims new delhi", "aiims delhi"],
+      "officialDomains": ["aiims.edu"],
+      "type": "healthcare_public"
+    },
+    {
+      "name": "ESIC",
+      "aliases": ["employees state insurance corporation", "esi hospital", "esic hospital"],
+      "officialDomains": ["esic.gov.in", "esic.nic.in"],
+      "type": "healthcare_public"
+    },
+    {
+      "name": "National Health Mission",
+      "aliases": ["nhm", "nrhm", "national rural health mission"],
+      "officialDomains": ["nhm.gov.in"],
+      "type": "healthcare_public"
+    },
+    {
+      "name": "Tata Memorial Centre",
+      "aliases": ["tata memorial hospital", "tmc mumbai", "tata memorial"],
+      "officialDomains": ["tmc.gov.in"],
+      "type": "healthcare_public"
+    },
+    {
+      "name": "Care Hospitals",
+      "aliases": ["care hospital"],
+      "officialDomains": ["carehospitals.com"],
+      "type": "healthcare_private"
+    },
+    {
+      "name": "Aster DM Healthcare",
+      "aliases": ["aster hospital", "aster dm", "aster healthcare"],
+      "officialDomains": ["asterdmhealthcare.com"],
+      "type": "healthcare_private"
+    },
+    {
+      "name": "Dr. Lal PathLabs",
+      "aliases": ["lal pathlabs", "dr lal path labs", "lal path labs"],
+      "officialDomains": ["lalpathlabs.com"],
+      "type": "diagnostics"
+    },
+    {
+      "name": "Metropolis Healthcare",
+      "aliases": ["metropolis", "metropolis labs", "metropolis healthcare limited"],
+      "officialDomains": ["metropolisindia.com"],
+      "type": "diagnostics"
+    },
+    {
+      "name": "Practo",
+      "aliases": ["practo technologies"],
+      "officialDomains": ["practo.com"],
+      "type": "healthtech"
+    },
+    {
+      "name": "Tata 1mg",
+      "aliases": ["1mg", "1mg technologies", "tata 1mg healthcare"],
+      "officialDomains": ["1mg.com"],
+      "type": "healthtech"
+    },
+    {
+      "name": "Tata Consultancy Services",
+      "aliases": ["tcs", "tata consultancy"],
+      "officialDomains": ["tcs.com"],
+      "type": "technology"
+    },
+    {
+      "name": "Infosys",
+      "aliases": ["infosys limited", "infosys technologies"],
+      "officialDomains": ["infosys.com"],
+      "type": "technology"
+    },
+    {
+      "name": "Wipro",
+      "aliases": ["wipro limited", "wipro technologies"],
+      "officialDomains": ["wipro.com"],
+      "type": "technology"
+    },
+    {
+      "name": "Tata Sons",
+      "aliases": ["tata group", "tata", "tata enterprises"],
+      "officialDomains": ["tata.com"],
+      "type": "conglomerate"
+    },
+    {
+      "name": "HCLTech",
+      "aliases": ["hcl", "hcl technologies", "hcl tech"],
+      "officialDomains": ["hcltech.com", "hcl.com"],
+      "type": "technology"
+    },
+    {
+      "name": "Tech Mahindra",
+      "aliases": ["tech m", "techmahindra"],
+      "officialDomains": ["techmahindra.com"],
+      "type": "technology"
+    },
+    {
+      "name": "Reliance Industries",
+      "aliases": ["reliance", "ril", "reliance retail", "jio"],
+      "officialDomains": ["ril.com", "jio.com"],
+      "type": "conglomerate"
+    },
+    {
+      "name": "Larsen & Toubro",
+      "aliases": ["l&t", "lt", "larsen and toubro"],
+      "officialDomains": ["larsentoubro.com"],
+      "type": "conglomerate"
+    },
+    {
+      "name": "State Bank of India",
+      "aliases": ["sbi", "state bank"],
+      "officialDomains": ["sbi.co.in"],
+      "type": "banking"
+    },
+    {
+      "name": "HDFC Bank",
+      "aliases": ["hdfc"],
+      "officialDomains": ["hdfcbank.com"],
+      "type": "banking"
+    },
+    {
+      "name": "ICICI Bank",
+      "aliases": ["icici"],
+      "officialDomains": ["icicibank.com"],
+      "type": "banking"
+    }
+  ]
+}

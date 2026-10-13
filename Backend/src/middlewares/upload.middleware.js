@@ -2,15 +2,15 @@ import path from 'path';
 import multer from 'multer';
 import { ApiError } from '../utils/ApiError.js';
 
-const ALLOWED_EXTENSIONS = new Set(['.wav', '.mp3', '.m4a', '.ogg', '.webm', '.flac']);
+const ALLOWED_AUDIO_EXTENSIONS = new Set(['.wav', '.mp3', '.m4a', '.ogg', '.webm', '.flac']);
 
 const storage = multer.memoryStorage();
 
-function fileFilter(_req, file, cb) {
+function audioFileFilter(_req, file, cb) {
   const originalName = file.originalname || '';
   const ext = path.extname(originalName).toLowerCase();
 
-  if (!ALLOWED_EXTENSIONS.has(ext)) {
+  if (!ALLOWED_AUDIO_EXTENSIONS.has(ext)) {
     return cb(
       new ApiError(
         415,
@@ -24,16 +24,57 @@ function fileFilter(_req, file, cb) {
   return cb(null, true);
 }
 
-const upload = multer({
+const audioUpload = multer({
   storage,
   limits: {
     fileSize: 10 * 1024 * 1024, // 10 MB limit
     files: 1,
   },
-  fileFilter,
+  fileFilter: audioFileFilter,
 });
 
-export const uploadAudio = upload.single('audio');
+export const uploadAudio = audioUpload.single('audio');
+
+// PDF Upload for Job Shield
+function pdfFileFilter(_req, file, cb) {
+  const originalName = file.originalname || '';
+  const ext = path.extname(originalName).toLowerCase();
+
+  if (ext !== '.pdf') {
+    return cb(
+      new ApiError(
+        415,
+        'UNSUPPORTED_MEDIA',
+        `Unsupported file format '${ext || 'unknown'}'. Only PDF files are supported.`
+      ),
+      false
+    );
+  }
+
+  return cb(null, true);
+}
+
+const pdfUpload = multer({
+  storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5 MB limit
+    files: 1,
+  },
+  fileFilter: pdfFileFilter,
+});
+
+export const uploadPdf = pdfUpload.single('file');
+
+/**
+ * Optional PDF upload middleware: invokes multer only if the request is multipart/form-data.
+ */
+export function optionalPdfUpload(req, res, next) {
+  const contentType = req.headers['content-type'] || '';
+  if (contentType.includes('multipart/form-data')) {
+    return uploadPdf(req, res, next);
+  }
+  return next();
+}
 
 /**
  * Sniffs the real audio format from binary header magic bytes.
@@ -102,5 +143,7 @@ export function sniffAudio(buffer) {
 
 export default {
   uploadAudio,
+  uploadPdf,
+  optionalPdfUpload,
   sniffAudio,
 };

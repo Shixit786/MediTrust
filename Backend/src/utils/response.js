@@ -27,7 +27,7 @@ export function buildShieldResult({
   signals = [],
   extra = {},
 }) {
-  const allowedShields = ['voice', 'job', 'sim'];
+  const allowedShields = ['voice', 'job', 'sim', 'fusion'];
   if (!allowedShields.includes(shield)) {
     throw new Error(`Invalid shield identifier: ${shield}. Expected one of: ${allowedShields.join(', ')}`);
   }

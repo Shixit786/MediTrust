@@ -20,6 +20,14 @@ export class ApiError extends Error {
     return new ApiError(429, code, message);
   }
 
+  static conflict(message = 'Resource conflict', code = 'CONFLICT', details) {
+    return new ApiError(409, code, message, details);
+  }
+
+  static forbidden(message = 'Forbidden', code = 'FORBIDDEN', details) {
+    return new ApiError(403, code, message, details);
+  }
+
   static notImplemented(message = 'Endpoint not implemented', code = 'NOT_IMPLEMENTED') {
     return new ApiError(501, code, message);
   }

@@ -4,6 +4,7 @@ import { createApp } from './src/app.js';
 import { env, configuredServices } from './src/config/env.js';
 import { connectDB, disconnectDB } from './src/db/connect.js';
 import { initSocket } from './src/sockets/index.js';
+import { simStore } from './src/services/sim/simStore.js';
 import { logger } from './src/utils/logger.js';
 
 const app = createApp();
@@ -50,7 +51,8 @@ async function gracefulShutdown(signal) {
   forceExitTimer.unref();
 
   try {
-    // 1. Close Socket.io server
+    // 1. Close Socket.io server and clear SIM timers
+    simStore.clearAll();
     if (io) {
       await new Promise((resolve) => io.close(resolve));
       logger.info('Socket.io server closed.');

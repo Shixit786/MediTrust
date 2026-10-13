@@ -1,0 +1,61 @@
+{
+  "_note": "Illustrative telecom anomaly event catalogue for simulated SIM Guard demo",
+  "events": {
+    "sim_swap": {
+      "type": "sim_swap",
+      "telemetryType": "SWAP_CONFIRMED",
+      "title": "Unauthorized SIM Swap",
+      "detail": "Physical SIM or eSIM re-allocation confirmed on carrier cellular network",
+      "severity": "critical",
+      "weight": 40
+    },
+    "call_forwarding": {
+      "type": "call_forwarding",
+      "telemetryType": "ANOMALY_SPIKE",
+      "title": "Unconditional Call Forwarding Activated",
+      "detail": "All incoming voice calls redirected to external MSISDN via carrier MMI code",
+      "severity": "high",
+      "weight": 25
+    },
+    "otp_flood": {
+      "type": "otp_flood",
+      "telemetryType": "OTP_FLOOD",
+      "title": "High-Frequency OTP Delivery Spike",
+      "detail": "Multiple rapid 2FA authentication tokens requested in under 60 seconds",
+      "severity": "high",
+      "weight": 20
+    },
+    "imei_change": {
+      "type": "imei_change",
+      "telemetryType": "DEVICE_SWITCH",
+      "title": "Handset IMEI Signature Mutation",
+      "detail": "Subscriber line re-registered on unverified hardware equipment identifier",
+      "severity": "high",
+      "weight": 25
+    },
+    "new_device_login": {
+      "type": "new_device_login",
+      "telemetryType": "DEVICE_SWITCH",
+      "title": "Unrecognized Device Session Initiated",
+      "detail": "Account session established from new hardware fingerprint and operating system",
+      "severity": "medium",
+      "weight": 15
+    },
+    "port_out_request": {
+      "type": "port_out_request",
+      "telemetryType": "SIM_CHANGE",
+      "title": "Mobile Number Portability (MNP) UPC Generated",
+      "detail": "Unique porting code requested to migrate subscriber identity to alternate telecom operator",
+      "severity": "critical",
+      "weight": 35
+    },
+    "location_anomaly": {
+      "type": "location_anomaly",
+      "telemetryType": "LOCATION_JUMP",
+      "title": "Geographic Velocity Inconsistency",
+      "detail": "Cell tower session shifted across 900+ km within minutes without transit duration",
+      "severity": "medium",
+      "weight": 15
+    }
+  }
+}

@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { env, configuredServices } from '../config/env.js';
 import { getLlmStatus } from '../services/llm.service.js';
 import { checkAudioHealth } from '../services/audio.service.js';
+import { getIntelStatus } from '../services/intel/intel.service.js';
 
 const router = Router();
 
@@ -24,6 +25,7 @@ router.get('/', async (_req, res) => {
     services: configuredServices(),
     llm: getLlmStatus(),
     audio: audioHealth,
+    intel: getIntelStatus(),
   });
 });
 

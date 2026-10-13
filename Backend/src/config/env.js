@@ -60,6 +60,37 @@ const envSchema = z.object({
   ABUSEIPDB_API_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
   SECURITYTRAILS_API_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
   IPQS_API_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
+  INTEL_TIMEOUT_MS: z.preprocess((val) => {
+    const v = emptyToUndefined(val);
+    if (v === undefined) return 4000;
+    const parsed = parseInt(String(v), 10);
+    return isNaN(parsed) ? v : parsed;
+  }, z.number().int().positive().default(4000)),
+  INTEL_MAX_URLS: z.preprocess((val) => {
+    const v = emptyToUndefined(val);
+    if (v === undefined) return 3;
+    const parsed = parseInt(String(v), 10);
+    return isNaN(parsed) ? v : parsed;
+  }, z.number().int().positive().default(3)),
+  INTEL_CACHE_TTL_MS: z.preprocess((val) => {
+    const v = emptyToUndefined(val);
+    if (v === undefined) return 1800000;
+    const parsed = parseInt(String(v), 10);
+    return isNaN(parsed) ? v : parsed;
+  }, z.number().int().positive().default(1800000)),
+  OPENCORPORATES_API_TOKEN: z.preprocess(emptyToUndefined, z.string().optional()),
+  COMPANY_TIMEOUT_MS: z.preprocess((val) => {
+    const v = emptyToUndefined(val);
+    if (v === undefined) return 4000;
+    const parsed = parseInt(String(v), 10);
+    return isNaN(parsed) ? v : parsed;
+  }, z.number().int().positive().default(4000)),
+  COMPANY_CACHE_TTL_MS: z.preprocess((val) => {
+    const v = emptyToUndefined(val);
+    if (v === undefined) return 3600000;
+    const parsed = parseInt(String(v), 10);
+    return isNaN(parsed) ? v : parsed;
+  }, z.number().int().positive().default(3600000)),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -98,6 +129,7 @@ export function configuredServices() {
     abuseipdb: Boolean(env.ABUSEIPDB_API_KEY),
     securitytrails: Boolean(env.SECURITYTRAILS_API_KEY),
     ipqs: Boolean(env.IPQS_API_KEY),
+    opencorporates: Boolean(env.OPENCORPORATES_API_TOKEN),
   };
 }
 

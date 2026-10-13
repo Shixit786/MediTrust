@@ -1,0 +1,326 @@
+[
+  {
+    "id": "pay_registration_fee",
+    "category": "UPFRONT_PAYMENT",
+    "regex": "\\b(?:registration|processing|application|security|training|uniform|onboarding|documentation|verification)\\s+(?:fee|fees|charge|charges|deposit|amount|cost)\\b",
+    "flags": "i",
+    "weight": 28,
+    "reason": "Requests upfront registration or processing fee before employment",
+    "healthcare": false
+  },
+  {
+    "id": "pay_upi_gpay",
+    "category": "UPFRONT_PAYMENT",
+    "regex": "\\b(?:pay|send|transfer|deposit)\\s+(?:via|through|on|to)?\\s*(?:upi|gpay|google\\s*pay|phonepe|paytm|bhim|qr\\s*code)\\b|\\b(?:upi|gpay|google\\s*pay|phonepe|paytm|bhim)\\s*(?:par|pe)?\\s*(?:bhejo|transfer|pay|send|karo)\\b",
+    "flags": "i",
+    "weight": 26,
+    "reason": "Requests payment through direct consumer UPI apps",
+    "healthcare": false
+  },
+  {
+    "id": "pay_refundable_deposit",
+    "category": "UPFRONT_PAYMENT",
+    "regex": "\\b(?:100%\\s*)?(?:refundable|security)\\s+(?:deposit|amount|fee)\\b",
+    "flags": "i",
+    "weight": 24,
+    "reason": "Uses 'refundable deposit' lure typical of advance-fee job scams",
+    "healthcare": false
+  },
+  {
+    "id": "pay_hinglish_fee",
+    "category": "UPFRONT_PAYMENT",
+    "regex": "\\b(?:paise|paisa|rupaye|fees?|charges?)\\s+(?:bhejo|jama\\s*kar(?:o|na|ein)?|transfer\\s*kar(?:o|na|ein)?|pay\\s*karo)\\b",
+    "flags": "i",
+    "weight": 26,
+    "reason": "Instructs recipient in Hinglish to send money or pay fees",
+    "healthcare": false
+  },
+  {
+    "id": "pay_devanagari_fee",
+    "category": "UPFRONT_PAYMENT",
+    "regex": "(?:पंजीकरण\\s*शुल्क|फीस\\s*जमा\\s*करें|पैसे\\s*भेजें|शुल्क\\s*जमा|टोकन\\s*मनी|जमा\\s*करवाएं)",
+    "flags": "u",
+    "weight": 28,
+    "reason": "Hindi prompt instructing payment or upfront fee deposit",
+    "healthcare": false
+  },
+  {
+    "id": "otp_request_direct",
+    "category": "OTP_REQUEST",
+    "regex": "\\b(?:share|send|enter|forward|give|provide|verify)\\s+(?:your\\s+)?(?:otp|one[- ]time[- ]password|pin|cvv|security\\s*code|auth\\s*code)\\b",
+    "flags": "i",
+    "weight": 30,
+    "reason": "Solicits one-time authentication code (OTP) or banking PIN",
+    "healthcare": false
+  },
+  {
+    "id": "otp_hinglish_request",
+    "category": "OTP_REQUEST",
+    "regex": "\\b(?:otp|pin|cvv)\\s*(?:batao|bhejo|share\\s*kar(?:o|na|ein)?|bata\\s*do|send\\s*kar(?:o|na|ein)?)\\b",
+    "flags": "i",
+    "weight": 30,
+    "reason": "Demands OTP or PIN in Hinglish phrasing",
+    "healthcare": false
+  },
+  {
+    "id": "otp_devanagari_request",
+    "category": "OTP_REQUEST",
+    "regex": "(?:ओटीपी\\s*(?:भेजें|बताओ|शेयर\\s*करें)|पिन\\s*नंबर\\s*बताएं)",
+    "flags": "u",
+    "weight": 30,
+    "reason": "Demands OTP code in Devanagari Hindi text",
+    "healthcare": false
+  },
+  {
+    "id": "urgency_limited_seats",
+    "category": "URGENCY",
+    "regex": "\\b(?:limited\\s+seats?|last\\s+(?:date|day|chance|opportunity)|hurry\\s+up|closing\\s+soon|offer\\s+expires?)\\b",
+    "flags": "i",
+    "weight": 16,
+    "reason": "Creates artificial scarcity with limited seats or expiring deadlines",
+    "healthcare": false
+  },
+  {
+    "id": "urgency_immediate_action",
+    "category": "URGENCY",
+    "regex": "\\b(?:reply|respond|confirm|apply|join)\\s+(?:within|in)\\s+[0-9]{1,2}\\s*(?:hours?|hrs?|mins?|minutes?)|immediate\\s+joining\\b",
+    "flags": "i",
+    "weight": 18,
+    "reason": "Pressures rapid decision within hours or minutes",
+    "healthcare": false
+  },
+  {
+    "id": "urgency_hinglish",
+    "category": "URGENCY",
+    "regex": "\\b(?:jaldi\\s*karo|turant\\s*(?:reply|sampark|bhejo|karein)|aakhri\\s*mauka|fatafat|samay\\s*seema)\\b",
+    "flags": "i",
+    "weight": 16,
+    "reason": "Uses high-pressure urgency cues in Hinglish",
+    "healthcare": false
+  },
+  {
+    "id": "urgency_devanagari",
+    "category": "URGENCY",
+    "regex": "(?:तुरंत\\s*(?:संपर्क|करें|जवाब\\s*दें)|जल्दी\\s*करें|आखिरी\\s*मौका|सीमित\\s*सीटें)",
+    "flags": "u",
+    "weight": 16,
+    "reason": "Uses artificial urgency cues in Devanagari Hindi",
+    "healthcare": false
+  },
+  {
+    "id": "salary_unrealistic_monthly",
+    "category": "UNREALISTIC_SALARY",
+    "regex": "\\b(?:earn|salary|income|package)\\s*(?:of|is|:)?\\s*(?:rs\\.?|inr)?\\s*(?:[5-9][0-9]|1[0-9]{2})[,.]?000\\s*(?:per\\s*month|\\/month|p\\.?m\\.?)?\\b.*\\b(?:no\\s+experience|freshers?|work\\s+from\\s+home|wfh)\\b",
+    "flags": "i",
+    "weight": 22,
+    "reason": "Promises excessive monthly earnings for zero-experience or WFH roles",
+    "healthcare": false
+  },
+  {
+    "id": "salary_unrealistic_daily",
+    "category": "UNREALISTIC_SALARY",
+    "regex": "\\b(?:daily\\s+(?:income|earnings?|payout)|earn\\s+(?:daily|per\\s*day)|daily)\\s*(?:rs\\.?|inr)?\\s*[1-9][0-9]{3,4}\\s*(?:rupaye|rupees|rs|paisa|payout)?\\b",
+    "flags": "i",
+    "weight": 22,
+    "reason": "Promises unrealistic daily cash payouts",
+    "healthcare": false
+  },
+  {
+    "id": "salary_hinglish_mobile",
+    "category": "UNREALISTIC_SALARY",
+    "regex": "\\b(?:ghar\\s*baithe\\s*(?:kamaye|kamayein|paisa)|mobile\\s*se\\s*(?:kamaye|earning)|bina\\s*(?:kisi\\s*)?anubhav)\\b",
+    "flags": "i",
+    "weight": 20,
+    "reason": "Unrealistic 'earn from home with mobile' claims in Hinglish",
+    "healthcare": false
+  },
+  {
+    "id": "salary_devanagari",
+    "category": "UNREALISTIC_SALARY",
+    "regex": "(?:घर\\s*बैठे\\s*कमाएं|प्रतिदिन\\s*[1-9][0-9]{2,4}|बिना\\s*अनुभव\\s*लाखों)",
+    "flags": "u",
+    "weight": 20,
+    "reason": "Exaggerated work-from-home income claims in Devanagari",
+    "healthcare": false
+  },
+  {
+    "id": "personal_data_docs",
+    "category": "PERSONAL_DATA_REQUEST",
+    "regex": "\\b(?:send|share|upload|submit)\\s+(?:your\\s+)?(?:aadhaar|pan\\s*card|bank\\s*(?:details|account|passbook)|cancelled\\s*cheque|credit\\s*card|passport)\\s*(?:on|via|through)?\\s*(?:whatsapp|telegram|chat|email)?\\b",
+    "flags": "i",
+    "weight": 25,
+    "reason": "Demands sensitive identity documents or banking records over informal channels",
+    "healthcare": false
+  },
+  {
+    "id": "personal_data_hinglish",
+    "category": "PERSONAL_DATA_REQUEST",
+    "regex": "\\b(?:aadhaar|adhar|pan\\s*card|bank\\s*passbook|khata\\s*number)\\s*(?:photo|copy|details)?\\s*(?:bhejo|send\\s*kar(?:o|na|ein)?)\\b",
+    "flags": "i",
+    "weight": 25,
+    "reason": "Demands identity cards and bank account copies in Hinglish",
+    "healthcare": false
+  },
+  {
+    "id": "personal_data_devanagari",
+    "category": "PERSONAL_DATA_REQUEST",
+    "regex": "(?:आधार\\s*कार्ड\\s*भेजें|पैन\\s*कार्ड\\s*भेजें|बैंक\\s*खाता\\s*विवरण)",
+    "flags": "u",
+    "weight": 25,
+    "reason": "Demands Aadhaar, PAN or bank passbook in Devanagari",
+    "healthcare": false
+  },
+  {
+    "id": "secrecy_confidential_keep",
+    "category": "ISOLATION_SECRECY",
+    "regex": "\\b(?:don'?t|do\\s*not)\\s+(?:tell|share\\s+with|disclose\\s+to|inform)\\s+(?:anyone|anybody|family|friends)\\b|\\b(?:keep\\s+this|strictly)\\s+(?:confidential|secret)\\b",
+    "flags": "i",
+    "weight": 26,
+    "reason": "Instructs recipient to keep communications hidden from family or colleagues",
+    "healthcare": false
+  },
+  {
+    "id": "secrecy_do_not_hangup",
+    "category": "ISOLATION_SECRECY",
+    "regex": "\\b(?:do\\s*not|don'?t)\\s+(?:hang\\s*up|disconnect(?:\\s*the)?\\s*call)\\b",
+    "flags": "i",
+    "weight": 24,
+    "reason": "Attempts to isolate the victim on an active live call",
+    "healthcare": false
+  },
+  {
+    "id": "secrecy_hinglish",
+    "category": "ISOLATION_SECRECY",
+    "regex": "\\b(?:kisi\\s*ko\\s*mat\\s*batana|kisi\\s*se\\s*mat\\s*(?:kehba|kehna)|call\\s*disconnect\\s*mat\\s*karna|phone\\s*mat\\s*kaatna|gupt\\s*rakhein)\\b",
+    "flags": "i",
+    "weight": 26,
+    "reason": "Imposes secrecy and isolation via Hinglish phrases",
+    "healthcare": false
+  },
+  {
+    "id": "secrecy_devanagari",
+    "category": "ISOLATION_SECRECY",
+    "regex": "(?:किसी\\s*को\\s*मत\\s*बताना|फोन\\s*मत\\s*काटना|कॉल\\s*चालू\\s*रखें|गुप्त\\s*रखें)",
+    "flags": "u",
+    "weight": 26,
+    "reason": "Imposes secrecy or demands continuous call hold in Devanagari",
+    "healthcare": false
+  },
+  {
+    "id": "channel_chat_only",
+    "category": "OFF_PLATFORM_CHANNEL",
+    "regex": "\\b(?:contact\\s+(?:only\\s+)?on|message\\s+me\\s+on|chat\\s+on|reach\\s+via)\\s*(?:whatsapp|telegram)\\b|\\bjoin\\s+(?:our\\s+)?telegram\\s+(?:channel|group)\\b",
+    "flags": "i",
+    "weight": 18,
+    "reason": "Redirects candidates exclusively to unverified chat apps",
+    "healthcare": false
+  },
+  {
+    "id": "channel_hinglish",
+    "category": "OFF_PLATFORM_CHANNEL",
+    "regex": "\\b(?:whatsapp\\s*par\\s*message\\s*karein|telegram\\s*join\\s*karein|whatsapp\\s*par\\s*sampark\\s*karein)\\b",
+    "flags": "i",
+    "weight": 18,
+    "reason": "Directs applicant to WhatsApp or Telegram in Hinglish",
+    "healthcare": false
+  },
+  {
+    "id": "channel_devanagari",
+    "category": "OFF_PLATFORM_CHANNEL",
+    "regex": "(?:व्हाट्सएप\\s*पर\\s*संपर्क\\s*करें|टेलीग्राम\\s*(?:ग्रुप\\s*ज्वाइन|ज्वाइन\\s*करें))",
+    "flags": "u",
+    "weight": 18,
+    "reason": "Directs applicant to WhatsApp or Telegram in Devanagari",
+    "healthcare": false
+  },
+  {
+    "id": "remote_app_access",
+    "category": "REMOTE_ACCESS_APP",
+    "regex": "\\b(?:install|download)\\s+(?:anydesk|teamviewer|quicksupport|rustdesk|zoho\\s*assist|screenshare|screen\\s*sharing\\s*app)\\b",
+    "flags": "i",
+    "weight": 30,
+    "reason": "Prompts installation of remote access or desktop monitoring tools",
+    "healthcare": false
+  },
+  {
+    "id": "remote_app_apk",
+    "category": "REMOTE_ACCESS_APP",
+    "regex": "\\b(?:install|download)\\s+.*\\.apk\\b",
+    "flags": "i",
+    "weight": 28,
+    "reason": "Instructs candidate to install untrusted Android APK packages",
+    "healthcare": false
+  },
+  {
+    "id": "authority_gov_guarantee",
+    "category": "AUTHORITY_IMPERSONATION",
+    "regex": "\\b(?:100%\\s*)?(?:government|sarkari)\\s+(?:job|naukri)\\s+(?:guaranteed|confirm|allotment)\\b|\\b(?:ministry\\s+of\\s+health|national\\s+health\\s+mission|nhm|ayushman\\s+bharat)\\s+(?:recruitment|vacancy|direct\\s+joining)\\b",
+    "flags": "i",
+    "weight": 24,
+    "reason": "Claims guaranteed government posting or impersonates health ministry initiatives",
+    "healthcare": true
+  },
+  {
+    "id": "authority_devanagari",
+    "category": "AUTHORITY_IMPERSONATION",
+    "regex": "(?:सरकारी\\s*नौकरी\\s*गारंटी|स्वास्थ्य\\s*मंत्रालय\\s*भर्ती|आयुष्मान\\s*भारत\\s*नौकरी)",
+    "flags": "u",
+    "weight": 24,
+    "reason": "Impersonates government health bodies or guarantees public sector posts",
+    "healthcare": true
+  },
+  {
+    "id": "healthcare_fee_placement",
+    "category": "HEALTHCARE_JOB_LURE",
+    "regex": "\\b(?:hospital|clinic|nursing|ward\\s*boy|lab\\s*technician|medical\\s*officer)\\s*(?:staff|vacancy|job|opening|hiring)?\\b.*\\b(?:registration|security|deposit|fee|charge|paisa|rupaye)\\b",
+    "flags": "i",
+    "weight": 28,
+    "reason": "Hospital, nursing or ward-boy placement soliciting upfront charges",
+    "healthcare": true
+  },
+  {
+    "id": "healthcare_gulf_placement",
+    "category": "HEALTHCARE_JOB_LURE",
+    "regex": "\\b(?:gulf|dubai|kuwait|saudi|qatar|oman)\\s+(?:nursing|hospital|medical)\\s+(?:placement|job|visa)\\b.*\\b(?:advance|deposit|charges?|fee)\\b",
+    "flags": "i",
+    "weight": 28,
+    "reason": "Overseas Gulf medical placement requiring upfront fee or visa deposit",
+    "healthcare": true
+  },
+  {
+    "id": "healthcare_devanagari_lure",
+    "category": "HEALTHCARE_JOB_LURE",
+    "regex": "(?:अस्पताल\\s*में\\s*वार्ड\\s*बॉय|नर्सिंग\\s*स्टाफ\\s*भर्ती|अस्पताल\\s*नौकरी\\s*हेतु\\s*फीस)",
+    "flags": "u",
+    "weight": 28,
+    "reason": "Hospital job opportunity in Devanagari soliciting payments",
+    "healthcare": true
+  },
+  {
+    "id": "link_cta_verify",
+    "category": "SUSPICIOUS_LINK",
+    "regex": "\\b(?:click|tap|open)\\s+(?:here|this\\s+link|below\\s+link)\\s+(?:to\\s+)?(?:apply|verify|register|confirm|claim|pay)\\b",
+    "flags": "i",
+    "weight": 18,
+    "reason": "Urges immediate click-through on action links to complete verification",
+    "healthcare": false
+  },
+  {
+    "id": "link_hinglish",
+    "category": "SUSPICIOUS_LINK",
+    "regex": "\\b(?:link\\s*par\\s*click\\s*kar(?:o|na|ein)?|yahan\\s*click\\s*karein|niche\\s*diye\\s*link)\\b",
+    "flags": "i",
+    "weight": 18,
+    "reason": "Urges link clicks using Hinglish phrasing",
+    "healthcare": false
+  },
+  {
+    "id": "link_devanagari",
+    "category": "SUSPICIOUS_LINK",
+    "regex": "(?:लिंक\\s*पर\\s*क्लिक\\s*करें|नीचे\\s*दिए\\s*गए\\s*लिंक)",
+    "flags": "u",
+    "weight": 18,
+    "reason": "Directs user to click embedded link in Devanagari text",
+    "healthcare": false
+  }
+]
