@@ -14,7 +14,7 @@ import { JobLinkAnalysis } from '../components/job/JobLinkAnalysis';
 import { JobCompanyVerification } from '../components/job/JobCompanyVerification';
 import { JobAiAnalysis } from '../components/job/JobAiAnalysis';
 import { JobSafeNextStep } from '../components/job/JobSafeNextStep';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { AlertCircle, RefreshCw, AlertTriangle, Info } from 'lucide-react';
 import { MonoLabel } from '../components/ui/MonoLabel';
 
 export const JobShieldPage: React.FC = React.memo(() => {
@@ -184,7 +184,38 @@ export const JobShieldPage: React.FC = React.memo(() => {
 
       {/* 5) Result View (Appears after scanning completes) */}
       {jobShieldState === 'done' && jobResult && (
-        <div className="w-full space-y-2 animate-fade-in" aria-live="polite">
+        <div className="w-full space-y-4 animate-fade-in" aria-live="polite">
+          {/* Demo Fallback Data Badge */}
+          {jobResult._source === 'demo' && (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-[#F59E0B]/15 text-[#B45309] border border-[#F59E0B]/30">
+              <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
+              <span>Demo data (backend offline)</span>
+            </div>
+          )}
+
+          {/* Emergency Claim Extortion Banner */}
+          {jobResult.emergency_claim?.detected && (
+            <div className="p-4 sm:p-5 rounded-[16px] bg-[#DC2626]/10 border-2 border-[#DC2626] flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-[#DC2626] shrink-0 mt-0.5" />
+              <div>
+                <span className="font-mono text-xs font-bold text-[#DC2626] uppercase">
+                  CRITICAL EMERGENCY CLAIM VECTOR DETECTED
+                </span>
+                <p className="text-xs sm:text-sm text-[#0A0A0A] mt-1 font-medium">
+                  This communication claims an urgent medical emergency, hospital admission, or time-critical deposit requirement. Verify directly through official hospital channels before taking any action.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Limitations Notice */}
+          {jobResult.limitations && jobResult.limitations.length > 0 && (
+            <div className="p-3.5 rounded-[14px] bg-[#6B6F76]/10 border border-[#6B6F76]/20 flex items-center gap-2 text-xs font-mono text-[#6B6F76]">
+              <Info className="w-4 h-4 shrink-0" />
+              <span>Limitations: {jobResult.limitations.join(', ')}</span>
+            </div>
+          )}
+
           {/* a) Verdict with Scam Probability */}
           <JobResultVerdict
             result={jobResult}
@@ -208,6 +239,11 @@ export const JobShieldPage: React.FC = React.memo(() => {
 
           {/* g) Safe Next Step Card & Cybercrime Helpline */}
           <JobSafeNextStep result={jobResult} />
+
+          {/* Disclaimer */}
+          <div className="p-4 rounded-[14px] bg-[#F0F0F0] border border-[#0A0A0A]/10 text-xs font-mono text-[#6B6F76] text-center my-4">
+            {jobResult.disclaimer || 'Early warning, not proof. A low score does not guarantee an offer is genuine. Always verify the employer independently.'}
+          </div>
         </div>
       )}
 

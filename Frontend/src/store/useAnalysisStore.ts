@@ -59,6 +59,15 @@ export interface AnalysisState {
     autoplay: boolean;
   };
 
+  // Navigation Menu Overlay State
+  isMenuOpen: boolean;
+  setMenuOpen: (open: boolean) => void;
+
+  demoAttackStage: number; // 0: IDLE, 1: JOB, 2: VOICE, 3: SIM, 4: CORRELATING, 5: COMPLETE
+  demoAttackProgress: number; // 0..1
+  isDemoAttackRunning: boolean;
+  realShieldBackup: Partial<Record<ShieldId, ShieldResult>> | null;
+
   // Actions
   setVoiceFile: (file: File | null) => void;
   setJobMessage: (message: string) => void;
@@ -96,6 +105,14 @@ export interface AnalysisState {
   setPresenterStep: (step: number) => void;
   toggleAutoplay: () => void;
   exitPresenter: () => void;
+
+  // Demo Attack Actions
+  setDemoAttackStage: (stage: number) => void;
+  setDemoAttackProgress: (progress: number) => void;
+  setDemoAttackRunning: (running: boolean) => void;
+  backupRealShields: () => void;
+  restoreRealShields: () => void;
+  resetDemoAttack: () => void;
 
   reset: () => void;
   resetDemo: () => void;
@@ -156,10 +173,18 @@ const initialState = {
     step: 0,
     autoplay: false,
   },
+
+  isMenuOpen: false,
+
+  demoAttackStage: 0,
+  demoAttackProgress: 0,
+  isDemoAttackRunning: false,
+  realShieldBackup: null,
 };
 
 export const useAnalysisStore = create<AnalysisState>((set) => ({
   ...initialState,
+  setMenuOpen: (isMenuOpen) => set({ isMenuOpen }),
   setVoiceFile: (voiceFile) => set({ voiceFile }),
   setJobMessage: (jobMessage) => set({ jobMessage }),
   setJobPdf: (jobPdf) => set({ jobPdf }),
@@ -329,6 +354,9 @@ export const useAnalysisStore = create<AnalysisState>((set) => ({
       demoStatus: 'idle',
       blobTone: 'idle',
       trustedContactAlerted: false,
+      demoAttackStage: 0,
+      demoAttackProgress: 0,
+      isDemoAttackRunning: false,
     }),
   resetAll: () =>
     set({
@@ -353,6 +381,9 @@ export const useAnalysisStore = create<AnalysisState>((set) => ({
       demoStatus: 'idle',
       blobTone: 'idle',
       trustedContactAlerted: false,
+      demoAttackStage: 0,
+      demoAttackProgress: 0,
+      isDemoAttackRunning: false,
     }),
   resetJobShield: () =>
     set({
@@ -409,4 +440,29 @@ export const useAnalysisStore = create<AnalysisState>((set) => ({
       blobTone: 'idle',
     });
   },
+
+  setDemoAttackStage: (demoAttackStage) => set({ demoAttackStage }),
+  setDemoAttackProgress: (demoAttackProgress) => set({ demoAttackProgress }),
+  setDemoAttackRunning: (isDemoAttackRunning) => set({ isDemoAttackRunning }),
+  backupRealShields: () =>
+    set((state) => ({
+      realShieldBackup: { ...state.shieldResults },
+    })),
+  restoreRealShields: () =>
+    set((state) => ({
+      shieldResults: state.realShieldBackup ? { ...state.realShieldBackup } : {},
+      fusionResult: null,
+      demoAttackStage: 0,
+      demoAttackProgress: 0,
+      isDemoAttackRunning: false,
+      demoStatus: 'idle',
+      blobTone: 'idle',
+    })),
+  resetDemoAttack: () =>
+    set({
+      demoAttackStage: 0,
+      demoAttackProgress: 0,
+      isDemoAttackRunning: false,
+      demoStatus: 'idle',
+    }),
 }));

@@ -9,6 +9,7 @@ import type {
 } from '../types/analysis';
 import { MockTelemetrySource } from '../services/telemetry';
 import { evaluateAnomaly } from '../services/simRules';
+import { joinSim, leaveSim, onSimEvent, onSimState, disconnectSocket } from '../lib/api/socket';
 import { SimGuardHeader } from '../components/sim/SimGuardHeader';
 import { SimRegisterSection } from '../components/sim/SimRegisterSection';
 import { SimCarrierCard } from '../components/sim/SimCarrierCard';
@@ -40,6 +41,9 @@ export const SimGuardPage: React.FC = React.memo(() => {
   // Guard to ensure demo auto-run executes only once per visit
   const hasAutoRunRef = useRef(false);
 
+  // Session-only full phone number ref (never saved to React state or URLs)
+  const phoneRef = useRef<string | null>(null);
+
   // Local telemetry events & integrity history (prevent whole-page re-renders)
   const [events, setEvents] = useState<SimTelemetryEvent[]>([]);
   const [integrityHistory, setIntegrityHistory] = useState<number[]>([98, 98, 99, 97, 98]);
@@ -60,11 +64,16 @@ export const SimGuardPage: React.FC = React.memo(() => {
   const telemetrySourceRef = useRef<MockTelemetrySource | null>(null);
   const autoTimeoutsRef = useRef<number[]>([]);
 
-  // Reset gradient blob on unmount
+  // Reset gradient blob and disconnect socket on unmount
   useEffect(() => {
     return () => {
       setBlobTone('idle');
       autoTimeoutsRef.current.forEach((t) => clearTimeout(t));
+      if (phoneRef.current) {
+        leaveSim(phoneRef.current);
+        phoneRef.current = null;
+      }
+      disconnectSocket();
       if (telemetrySourceRef.current) {
         telemetrySourceRef.current.disconnect();
       }
@@ -113,6 +122,47 @@ export const SimGuardPage: React.FC = React.memo(() => {
     [simStatus, setShieldResult, setShieldStatus, setSimScore, setSimStatus]
   );
 
+  // Subscribe to live backend WebSocket events
+  useEffect(() => {
+    const unsubEvent = onSimEvent((payload: unknown) => {
+      const data = payload as {
+        event?: { id?: string; type?: string; message?: string; detail?: string };
+        level?: 'low' | 'medium' | 'high' | 'critical';
+        riskScore?: number;
+      };
+      if (data?.event) {
+        const ev: SimTelemetryEvent = {
+          id: data.event.id || `ev-${Date.now()}`,
+          timestamp: new Date().toTimeString().split(' ')[0],
+          type: (data.event.type || 'TELEMETRY_ALERT') as SimTelemetryEvent['type'],
+          message: data.event.message || data.event.detail || 'Carrier telemetry update received.',
+          severity: data.level || 'medium',
+        };
+        handleIncomingEvent(ev);
+      }
+    });
+
+    const unsubState = onSimState((payload: unknown) => {
+      const state = payload as { riskScore?: number; status?: 'idle' | 'normal' | 'anomaly' | 'confirmed' | 'frozen' };
+      if (state) {
+        if (typeof state.riskScore === 'number') {
+          setSimScore(state.riskScore);
+          const integrity = Math.max(10, 100 - state.riskScore);
+          setCurrentIntegrity(integrity);
+          setIntegrityHistory((h) => [...h.slice(-39), integrity]);
+        }
+        if (state.status) {
+          setSimStatus(state.status);
+        }
+      }
+    });
+
+    return () => {
+      unsubEvent();
+      unsubState();
+    };
+  }, [handleIncomingEvent, setSimScore, setSimStatus]);
+
   // Initialize Telemetry Source when number is registered
   useEffect(() => {
     if (simNumber && !telemetrySourceRef.current) {
@@ -127,7 +177,7 @@ export const SimGuardPage: React.FC = React.memo(() => {
 
   // Registration handler
   const handleRegistered = useCallback(
-    ({ maskedNumber, carrier: c }: { maskedNumber: string; carrier: CarrierInfo }) => {
+    ({ maskedNumber, carrier: c, rawPhone }: { maskedNumber: string; carrier: CarrierInfo; rawPhone?: string }) => {
       setSimNumber(maskedNumber);
       setCarrier(c);
       setSimStatus('normal');
@@ -139,6 +189,11 @@ export const SimGuardPage: React.FC = React.memo(() => {
         otp: false,
         freeze: false,
       });
+
+      if (rawPhone) {
+        phoneRef.current = rawPhone;
+        joinSim(rawPhone).catch(() => {});
+      }
 
       // Initial baseline OK event
       if (telemetrySourceRef.current) {
@@ -158,6 +213,12 @@ export const SimGuardPage: React.FC = React.memo(() => {
     autoTimeoutsRef.current = [];
     setIsAutoRunning(false);
 
+    if (phoneRef.current) {
+      leaveSim(phoneRef.current);
+      api.resetSim(phoneRef.current).catch(() => {});
+      phoneRef.current = null;
+    }
+
     if (telemetrySourceRef.current) {
       telemetrySourceRef.current.disconnect();
       telemetrySourceRef.current = null;
@@ -172,37 +233,46 @@ export const SimGuardPage: React.FC = React.memo(() => {
 
   // Attack Trigger: Location Jump
   const handleTriggerLocationJump = useCallback(() => {
+    setAttackChainSteps((s) => ({ ...s, location: true }));
+    if (phoneRef.current) {
+      api.simulateSim('location_jump', phoneRef.current).catch(() => {});
+    }
     if (telemetrySourceRef.current) {
       telemetrySourceRef.current.emit(
         'LOCATION_JUMP',
         'Login from Mumbai, 11 minutes after Ghaziabad session (900 km impossible travel)',
         'critical'
       );
-      setAttackChainSteps((s) => ({ ...s, location: true }));
     }
   }, []);
 
   // Attack Trigger: Device Switch
   const handleTriggerDeviceSwitch = useCallback(() => {
+    setAttackChainSteps((s) => ({ ...s, device: true }));
+    if (phoneRef.current) {
+      api.simulateSim('device_switch', phoneRef.current).catch(() => {});
+    }
     if (telemetrySourceRef.current) {
       telemetrySourceRef.current.emit(
         'DEVICE_SWITCH',
         'Handset hardware signature switched to unknown Android IMEI 3548920194821',
         'high'
       );
-      setAttackChainSteps((s) => ({ ...s, device: true }));
     }
   }, []);
 
   // Attack Trigger: OTP Flood
   const handleTriggerOtpFlood = useCallback(() => {
+    setAttackChainSteps((s) => ({ ...s, otp: true }));
+    if (phoneRef.current) {
+      api.simulateSim('otp_flood', phoneRef.current).catch(() => {});
+    }
     if (telemetrySourceRef.current) {
       telemetrySourceRef.current.emit(
         'OTP_FLOOD',
         '7 consecutive 2FA authentication SMS tokens requested in 40 seconds',
         'high'
       );
-      setAttackChainSteps((s) => ({ ...s, otp: true }));
     }
   }, []);
 
@@ -222,6 +292,10 @@ export const SimGuardPage: React.FC = React.memo(() => {
       otp: false,
       freeze: false,
     });
+
+    if (phoneRef.current) {
+      api.simulateSim('full_chain', phoneRef.current).catch(() => {});
+    }
 
     const source = telemetrySourceRef.current;
     if (!source) return;
@@ -299,14 +373,15 @@ export const SimGuardPage: React.FC = React.memo(() => {
           handleRegistered({
             maskedNumber: '+91 98••• ••210',
             carrier: carrierInfo,
+            rawPhone: '9820144210',
           });
           const t = window.setTimeout(() => {
             handleTriggerAutoSequence();
           }, 600);
           autoTimeoutsRef.current.push(t);
         })
-        .catch((err) => {
-          console.error('SIM demo register error', err);
+        .catch(() => {
+          // Graceful fallback without console logging
         });
     }
   }, [searchParams, simNumber, handleRegistered, handleTriggerAutoSequence]);

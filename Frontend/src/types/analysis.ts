@@ -14,6 +14,7 @@ export interface ShieldResult {
   level: RiskLevel;
   confidence?: number;
   signals: Signal[];
+  _source?: 'live' | 'demo';
 }
 
 export interface FusionContribution {
@@ -138,6 +139,13 @@ export interface JobShieldResult extends ShieldResult {
   highlights: TextHighlight[];
   company: CompanyAnalysis;
   ai: AiScamAnalysis;
+  emergency_claim?: {
+    detected: boolean;
+    escalated: boolean;
+    reason?: string;
+  };
+  limitations?: string[];
+  disclaimer?: string;
 }
 
 // Voice Shield Specific Types
@@ -197,6 +205,9 @@ export interface CarrierInfo {
   confidence: string;
   recent_sim_change: string;
   roaming: string;
+  disclaimer?: string;
+  simulated?: boolean;
+  _source?: 'live' | 'demo';
 }
 
 export type SimEventType =

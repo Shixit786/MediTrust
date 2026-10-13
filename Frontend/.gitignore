@@ -1,1 +1,12 @@
 node_modules
+*.local
+
+# Sample Audio Clips (Privacy Protection: prevents accidental commit of voice recordings)
+public/samples/*.mp3
+public/samples/*.wav
+public/samples/*.m4a
+public/samples/*.ogg
+public/samples/*.webm
+public/samples/*.flac
+public/samples/*.opus
+!public/samples/README.md

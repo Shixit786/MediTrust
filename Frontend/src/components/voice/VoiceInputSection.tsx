@@ -20,13 +20,14 @@ export interface VoiceInputSectionProps {
     fileName?: string | null;
     duration?: number | null;
   }) => void;
+  isAnalyzing?: boolean;
 }
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 const MAX_DURATION_SEC = 60;
 const MAX_RECORD_SEC = 30;
 
-export const VoiceInputSection: React.FC<VoiceInputSectionProps> = React.memo(({ onAnalyze }) => {
+export const VoiceInputSection: React.FC<VoiceInputSectionProps> = React.memo(({ onAnalyze, isAnalyzing = false }) => {
   const [activeTab, setActiveTab] = useState<'upload' | 'record'>('upload');
 
   // Audio state
@@ -292,7 +293,7 @@ export const VoiceInputSection: React.FC<VoiceInputSectionProps> = React.memo(({
     setRecordedBlob(null);
     setSelectedSampleId(sampleId);
 
-    const sampleUrl = sampleId === 'real_human' ? '/samples/real_human.mp3' : '/samples/ai_deepfake.mp3';
+    const sampleUrl = sampleId === 'real_human' ? '/samples/real_human.m4a' : '/samples/ai_deepfake.mp3';
 
     try {
       const res = await fetch(sampleUrl);
@@ -300,6 +301,12 @@ export const VoiceInputSection: React.FC<VoiceInputSectionProps> = React.memo(({
         throw new Error('404');
       }
       const blob = await res.blob();
+      const fileName = sampleId === 'real_human' ? 'Verified_Human_Voice.m4a' : 'Fake_Doctor_Call_AI.mp3';
+      const file = new File([blob], fileName, {
+        type: blob.type || (sampleId === 'real_human' ? 'audio/mp4' : 'audio/mpeg'),
+      });
+      setSelectedFile(file);
+
       const { peaks: decodedPeaks, duration } = await extractWaveformPeaks(blob, 120);
       setPeaks(decodedPeaks);
       setAudioDuration(duration);
@@ -329,22 +336,26 @@ export const VoiceInputSection: React.FC<VoiceInputSectionProps> = React.memo(({
   const hasAudioInput = Boolean(selectedFile || recordedBlob || selectedSampleId);
 
   const handleSubmit = () => {
-    if (!hasAudioInput) return;
+    if (!hasAudioInput || isAnalyzing) return;
 
     if (selectedSampleId) {
       onAnalyze({
+        file: selectedFile,
         sampleId: selectedSampleId,
         fileName:
           selectedSampleId === 'ai_deepfake'
             ? 'Fake_Doctor_Call_AI.mp3'
             : selectedSampleId === 'real_human'
-            ? 'Verified_Human_Voice.mp3'
+            ? 'Verified_Human_Voice.m4a'
             : 'Patient_Support_Synthetic.mp3',
         duration: audioDuration || 18,
       });
     } else if (recordedBlob) {
+      const recFile = new File([recordedBlob], 'Live_Microphone_Capture.webm', {
+        type: recordedBlob.type || 'audio/webm',
+      });
       onAnalyze({
-        file: recordedBlob,
+        file: recFile,
         fileName: 'Live_Microphone_Capture.webm',
         duration: audioDuration || recordSeconds,
       });
@@ -628,12 +639,12 @@ export const VoiceInputSection: React.FC<VoiceInputSectionProps> = React.memo(({
           <div className="flex items-center gap-4">
             <MagneticButton
               onClick={handleSubmit}
-              disabled={!hasAudioInput || isRecording}
+              disabled={!hasAudioInput || isRecording || isAnalyzing}
               variant="primary"
               size="lg"
               className="flex-1 rounded-[16px] text-sm font-semibold"
             >
-              ANALYZE VOICE
+              {isAnalyzing ? 'ANALYZING AUDIO...' : 'ANALYZE VOICE'}
             </MagneticButton>
 
             {hasAudioInput && !isRecording && (

@@ -10,13 +10,13 @@ const LEGEND_ITEMS: Array<{
   category: 'URGENCY' | 'UPFRONT PAYMENT' | 'OTP REQUEST' | 'UNREALISTIC SALARY' | 'SUSPICIOUS LINK' | 'PERSONAL DATA';
   label: string;
 }> = [
-  { category: 'URGENCY', label: 'URGENCY' },
-  { category: 'UPFRONT PAYMENT', label: 'UPFRONT PAYMENT' },
-  { category: 'OTP REQUEST', label: 'OTP REQUEST' },
-  { category: 'UNREALISTIC SALARY', label: 'UNREALISTIC SALARY' },
-  { category: 'SUSPICIOUS LINK', label: 'SUSPICIOUS LINK' },
-  { category: 'PERSONAL DATA', label: 'PERSONAL DATA REQUEST' },
-];
+    { category: 'URGENCY', label: 'URGENCY' },
+    { category: 'UPFRONT PAYMENT', label: 'UPFRONT PAYMENT' },
+    { category: 'OTP REQUEST', label: 'OTP REQUEST' },
+    { category: 'UNREALISTIC SALARY', label: 'UNREALISTIC SALARY' },
+    { category: 'SUSPICIOUS LINK', label: 'SUSPICIOUS LINK' },
+    { category: 'PERSONAL DATA', label: 'PERSONAL DATA REQUEST' },
+  ];
 
 export const JobHighlightedMessage: React.FC<JobHighlightedMessageProps> = React.memo(({ text }) => {
   const segments = useMemo(() => parseHighlightedText(text), [text]);

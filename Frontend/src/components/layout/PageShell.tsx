@@ -6,6 +6,7 @@ import type { BlobTone } from '../../types/analysis';
 
 import { useAnalysisStore } from '../../store/useAnalysisStore';
 import { DemoConductor } from '../presenter/DemoConductor';
+import { ChatWidget } from '../chat/ChatWidget';
 
 export interface PageShellProps {
   children: React.ReactNode;
@@ -38,6 +39,7 @@ export const PageShell: React.FC<PageShellProps> = React.memo(({
         {children}
       </main>
       {!hideFooter && <Footer />}
+      <ChatWidget />
       <DemoConductor />
     </div>
   );

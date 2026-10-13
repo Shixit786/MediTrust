@@ -23,8 +23,8 @@ export const SimCarrierCard: React.FC<SimCarrierCardProps> = React.memo(
     const dynamicFraudScore = isCompromised
       ? 94
       : isAnomaly
-      ? Math.max(carrier.fraud_score, Math.round(carrier.fraud_score + anomalyScore * 0.7))
-      : carrier.fraud_score;
+        ? Math.max(carrier.fraud_score, Math.round(carrier.fraud_score + anomalyScore * 0.7))
+        : carrier.fraud_score;
 
     const recentSimChangeText = isCompromised
       ? 'DETECTED (SIMULATED)'
@@ -50,8 +50,11 @@ export const SimCarrierCard: React.FC<SimCarrierCardProps> = React.memo(
             <div className="flex items-center gap-2 mb-2">
               <Radio className="w-4 h-4 text-[#FF4FA3]" />
               <MonoLabel color="accent">CARRIER NODE INTELLIGENCE</MonoLabel>
-              {USE_MOCK && (
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#FF4FA3]/10 text-[#FF4FA3] border border-[#FF4FA3]/30">
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#FF4FA3]/10 text-[#FF4FA3] border border-[#FF4FA3]/30">
+                SIMULATED DEMO
+              </span>
+              {(USE_MOCK || (carrier as { _source?: string })._source === 'demo') && (
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#F59E0B]/10 text-[#D97706] border border-[#F59E0B]/30">
                   DEMO DATA
                 </span>
               )}
@@ -106,13 +109,12 @@ export const SimCarrierCard: React.FC<SimCarrierCardProps> = React.memo(
               <div className="flex items-center gap-3 font-mono text-xs sm:text-sm">
                 <span className="text-[#6B6F76] uppercase">FRAUD SCORE</span>
                 <span
-                  className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                    fraudScoreChip === 'FLAGGED'
+                  className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${fraudScoreChip === 'FLAGGED'
                       ? 'bg-[#EF4444]/10 text-[#DC2626] border border-[#EF4444]/20'
                       : fraudScoreChip === 'SUSPICIOUS'
-                      ? 'bg-[#F59E0B]/10 text-[#D97706] border border-[#F59E0B]/20'
-                      : 'bg-[#10B981]/10 text-[#059669] border border-[#10B981]/20'
-                  }`}
+                        ? 'bg-[#F59E0B]/10 text-[#D97706] border border-[#F59E0B]/20'
+                        : 'bg-[#10B981]/10 text-[#059669] border border-[#10B981]/20'
+                    }`}
                 >
                   {fraudScoreChip}
                 </span>
@@ -152,11 +154,10 @@ export const SimCarrierCard: React.FC<SimCarrierCardProps> = React.memo(
               <div className="flex items-center gap-2">
                 <span className="text-[#6B6F76] uppercase">RECENT SIM CHANGE</span>
                 <span
-                  className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                    simChangeChip === 'FLAGGED'
+                  className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${simChangeChip === 'FLAGGED'
                       ? 'bg-[#EF4444]/10 text-[#DC2626] border border-[#EF4444]/20'
                       : 'bg-[#10B981]/10 text-[#059669] border border-[#10B981]/20'
-                  }`}
+                    }`}
                 >
                   {simChangeChip}
                 </span>
@@ -176,6 +177,11 @@ export const SimCarrierCard: React.FC<SimCarrierCardProps> = React.memo(
               <span className="text-[#0A0A0A] font-semibold">{carrier.roaming}</span>
             </div>
           </HairlineRow>
+
+          {/* Disclaimer */}
+          <div className="mt-4 pt-4 border-t border-[#0A0A0A]/10 text-xs font-mono text-[#6B6F76]">
+            {carrier.disclaimer || 'Simulated demo. Real SIM-swap detection needs telecom operator integration. Early warning, not proof.'}
+          </div>
         </div>
       </section>
     );

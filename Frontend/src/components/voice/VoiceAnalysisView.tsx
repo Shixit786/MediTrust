@@ -1,12 +1,22 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { MonoLabel } from '../ui/MonoLabel';
-import { Check } from 'lucide-react';
+import { Check, Clock } from 'lucide-react';
 import { NeuralSynapseCanvas } from './NeuralSynapseCanvas';
 import type { FeatureStatus } from '../../types/analysis';
 
+export type VoiceAnalysisStage =
+  | 'IDLE'
+  | 'VALIDATING'
+  | 'UPLOADING'
+  | 'ANALYZING ON SERVER'
+  | 'RECEIVED'
+  | 'DONE'
+  | 'ERROR';
+
 interface VoiceAnalysisViewProps {
+  stage: VoiceAnalysisStage;
   featureStatuses: FeatureStatus[];
-  onAnalysisComplete: () => void;
+  onHardTimeout?: () => void;
 }
 
 const PIPELINE_STEPS = [
@@ -17,107 +27,70 @@ const PIPELINE_STEPS = [
 ];
 
 export const VoiceAnalysisView: React.FC<VoiceAnalysisViewProps> = React.memo(
-  ({ featureStatuses, onAnalysisComplete }) => {
-    // Pipeline active step: 0..3
-    const [activeStep, setActiveStep] = useState<number>(0);
-    // Active feature cluster index: 0..8 (-1 initially)
-    const [activeFeatureIndex, setActiveFeatureIndex] = useState<number>(-1);
-    const [progressStarted, setProgressStarted] = useState(false);
+  ({ stage, featureStatuses, onHardTimeout }) => {
+    // Pipeline active step: 0..3 derived from stage
+    const [activeFeatureIndex, setActiveFeatureIndex] = useState<number>(0);
 
-    // Stagger timeouts ref for pause & cleanup
-    const timeoutsRef = useRef<number[]>([]);
+    // DOM refs for zero-rerender performance timer
+    const elapsedSpanRef = useRef<HTMLSpanElement | null>(null);
+    const longNoticeRef = useRef<HTMLDivElement | null>(null);
     const startTimeRef = useRef<number>(0);
-    const pausedElapsedRef = useRef<number>(0);
-    const isCompletedRef = useRef<boolean>(false);
+    const intervalRef = useRef<number | null>(null);
+    const featureStaggerRef = useRef<number | null>(null);
 
-    const scheduleTimeline = useCallback(
-      (offsetMs: number) => {
-        timeoutsRef.current.forEach((id) => clearTimeout(id));
-        timeoutsRef.current = [];
+    // Map real stage to active pipeline step
+    let activeStep = 0;
+    let progressScale = 0.15;
+    if (stage === 'VALIDATING') {
+      activeStep = 0;
+      progressScale = 0.2;
+    } else if (stage === 'UPLOADING') {
+      activeStep = 1;
+      progressScale = 0.45;
+    } else if (stage === 'ANALYZING ON SERVER') {
+      activeStep = 2;
+      progressScale = 0.8;
+    } else if (stage === 'RECEIVED' || stage === 'DONE') {
+      activeStep = 3;
+      progressScale = 1.0;
+    }
 
-        // Pipeline step transitions
-        const pipelineSchedule = [
-          { time: 0, step: 0 },
-          { time: 1100, step: 1 },
-          { time: 2400, step: 2 },
-          { time: 3600, step: 3 },
-        ];
-
-        pipelineSchedule.forEach(({ time, step }) => {
-          const delay = time - offsetMs;
-          if (delay > 0) {
-            const tid = window.setTimeout(() => {
-              setActiveStep(step);
-            }, delay);
-            timeoutsRef.current.push(tid);
-          } else {
-            setActiveStep(step);
-          }
-        });
-
-        // 9 Feature activation stagger (~380ms apart from 600ms to 3800ms)
-        const featureDelays = [600, 1000, 1400, 1800, 2200, 2600, 3000, 3400, 3800];
-        featureDelays.forEach((time, index) => {
-          const delay = time - offsetMs;
-          if (delay > 0) {
-            const tid = window.setTimeout(() => {
-              setActiveFeatureIndex(index);
-            }, delay);
-            timeoutsRef.current.push(tid);
-          } else {
-            setActiveFeatureIndex(index);
-          }
-        });
-
-        // Analysis completion at 4500ms
-        const finalDelay = 4500 - offsetMs;
-        if (finalDelay > 0) {
-          const tid = window.setTimeout(() => {
-            if (!isCompletedRef.current) {
-              isCompletedRef.current = true;
-              onAnalysisComplete();
-            }
-          }, finalDelay);
-          timeoutsRef.current.push(tid);
-        } else if (!isCompletedRef.current) {
-          isCompletedRef.current = true;
-          onAnalysisComplete();
-        }
-      },
-      [onAnalysisComplete]
-    );
-
+    // High performance elapsed seconds counter via DOM ref (no React state re-renders)
     useEffect(() => {
       startTimeRef.current = Date.now();
-      scheduleTimeline(0);
 
-      // Trigger CSS progress transform
-      const frame = requestAnimationFrame(() => {
-        setProgressStarted(true);
-      });
-
-      // Visibility change handler (pauses/resumes timeline when tab changes)
-      const handleVisibilityChange = () => {
-        if (isCompletedRef.current) return;
-
-        if (document.hidden) {
-          pausedElapsedRef.current = Date.now() - startTimeRef.current;
-          timeoutsRef.current.forEach((id) => clearTimeout(id));
-          timeoutsRef.current = [];
-        } else {
-          startTimeRef.current = Date.now() - pausedElapsedRef.current;
-          scheduleTimeline(pausedElapsedRef.current);
+      intervalRef.current = window.setInterval(() => {
+        const elapsedSec = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        if (elapsedSpanRef.current) {
+          elapsedSpanRef.current.textContent = `${elapsedSec}s`;
         }
-      };
 
-      document.addEventListener('visibilitychange', handleVisibilityChange);
+        if (longNoticeRef.current) {
+          if (elapsedSec >= 8 && elapsedSec < 45) {
+            longNoticeRef.current.style.opacity = '1';
+          } else {
+            longNoticeRef.current.style.opacity = '0';
+          }
+        }
+
+        if (elapsedSec >= 45) {
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          onHardTimeout?.();
+        }
+      }, 1000);
+
+      // Feature cluster stagger animation
+      let currentIdx = 0;
+      featureStaggerRef.current = window.setInterval(() => {
+        currentIdx = (currentIdx + 1) % 9;
+        setActiveFeatureIndex(currentIdx);
+      }, 500);
 
       return () => {
-        cancelAnimationFrame(frame);
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
-        timeoutsRef.current.forEach((id) => clearTimeout(id));
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        if (featureStaggerRef.current) clearInterval(featureStaggerRef.current);
       };
-    }, [scheduleTimeline]);
+    }, [onHardTimeout]);
 
     return (
       <section
@@ -136,8 +109,14 @@ export const VoiceAnalysisView: React.FC<VoiceAnalysisViewProps> = React.memo(
               Extracting 9 Spectral Vectors & Glottal Dynamics
             </h2>
           </div>
-          <div className="font-mono-label text-xs text-[#6B6F76]">
-            STAGE {activeStep + 1} OF 4
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1.5 font-mono text-xs text-[#0A0A0A] bg-[#F0F0F0] px-3 py-1.5 rounded-lg border border-[#0A0A0A]/10">
+              <Clock className="w-3.5 h-3.5 text-[#3B5BFF]" />
+              <span ref={elapsedSpanRef}>0s</span>
+            </div>
+            <div className="font-mono-label text-xs text-[#6B6F76]">
+              STAGE {activeStep + 1} OF 4
+            </div>
           </div>
         </div>
 
@@ -146,16 +125,16 @@ export const VoiceAnalysisView: React.FC<VoiceAnalysisViewProps> = React.memo(
           <div
             className="h-full bg-[#3B5BFF]"
             style={{
-              transform: progressStarted ? 'scaleX(1)' : 'scaleX(0)',
+              transform: `scaleX(${progressScale})`,
               transformOrigin: 'left',
-              transition: 'transform 4500ms cubic-bezier(0.2, 0.6, 0.35, 1)',
+              transition: 'transform 600ms cubic-bezier(0.16, 1, 0.3, 1)',
               willChange: 'transform',
             }}
           />
         </div>
 
         {/* A. Pipeline strip: four mono steps connected by dotted hairline */}
-        <div className="mb-10">
+        <div className="mb-8">
           <div className="relative flex items-center justify-between">
             <div
               className="absolute left-0 right-0 top-1/2 -translate-y-1/2 border-t-2 border-dotted border-[#0A0A0A]/20 -z-0"
@@ -196,6 +175,20 @@ export const VoiceAnalysisView: React.FC<VoiceAnalysisViewProps> = React.memo(
                 </div>
               );
             })}
+          </div>
+
+          {/* Current Lifecycle Stage Label & Long Clip Notice */}
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-[#0A0A0A]/10">
+            <div className="font-mono-label text-xs font-semibold text-[#0A0A0A] tracking-wider uppercase">
+              LIFECYCLE STAGE: <span className="text-[#3B5BFF] font-bold">{stage}</span>
+            </div>
+            <div
+              ref={longNoticeRef}
+              className="text-xs font-mono text-[#D97706] bg-[#F59E0B]/10 px-3 py-1 rounded-md border border-[#F59E0B]/30 transition-opacity duration-300"
+              style={{ opacity: 0 }}
+            >
+              Still analysing, long clips take longer
+            </div>
           </div>
         </div>
 

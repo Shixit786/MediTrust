@@ -92,11 +92,31 @@ export const VoiceResultVerdict: React.FC<VoiceResultVerdictProps> = React.memo(
               <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </button>
 
-            <div className="mt-4 md:mt-0 font-mono-label text-xs text-[#6B6F76] md:text-right">
-              CONFIDENCE {Math.round((result.confidence ?? 0.82) * 100)}% · 9 SPECTRAL VECTORS ANALYZED
+            <div className="mt-4 md:mt-0 flex flex-col items-start md:items-end gap-1 font-mono-label text-xs text-[#6B6F76] md:text-right">
+              <div>
+                CONFIDENCE {Math.round((result.confidence ?? 0.82) * 100)}% · 9 SPECTRAL VECTORS
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#0A0A0A]/5 text-[#0A0A0A] border border-[#0A0A0A]/10">
+                <span>RELIABILITY:</span>
+                <span className="text-[#3B5BFF]">
+                  {(result as { reliability?: string }).reliability?.toUpperCase() || 'MEDIUM'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Quality warnings if returned by backend */}
+        {(result as { quality?: { warnings?: string[] } }).quality?.warnings &&
+          (result as { quality?: { warnings?: string[] } }).quality!.warnings!.length > 0 && (
+            <div className="pt-4 pb-2">
+              {(result as { quality?: { warnings?: string[] } }).quality!.warnings!.map((w, i) => (
+                <div key={i} className="text-xs font-mono text-[#D97706] bg-[#F59E0B]/10 p-2.5 rounded-lg border border-[#F59E0B]/20 mb-2">
+                  * Notice: {w}
+                </div>
+              ))}
+            </div>
+          )}
 
         <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <p className="text-base sm:text-lg md:text-xl font-light text-[#0A0A0A] leading-relaxed">
@@ -106,6 +126,11 @@ export const VoiceResultVerdict: React.FC<VoiceResultVerdictProps> = React.memo(
           <span className="shrink-0 font-mono text-[11px] text-[#6B6F76] tracking-wide uppercase">
             * Risk indicator, not proof.
           </span>
+        </div>
+
+        {/* Honest note under verdict */}
+        <div className="mt-4 pt-3 border-t border-[#0A0A0A]/10 text-xs font-mono text-[#6B6F76]">
+          A low score does not guarantee a voice is real. This is a heuristic indicator.
         </div>
       </section>
     );

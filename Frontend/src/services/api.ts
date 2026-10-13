@@ -1,159 +1,138 @@
-import type { ShieldId, ShieldResult, FusionResult, JobShieldResult, VoiceShieldResult, CarrierInfo } from '../types/analysis';
-import voiceMock from './mocks/voice.json';
-import voiceAIMock from './mocks/voiceAI.json';
-import voiceAI2Mock from './mocks/voiceAI2.json';
-import voiceHumanMock from './mocks/voiceHuman.json';
-import jobMock from './mocks/job.json';
-import jobScamMock from './mocks/jobScam.json';
-import jobSafeMock from './mocks/jobSafe.json';
-import simMock from './mocks/sim.json';
-import simCarrierMock from './mocks/simCarrier.json';
-import fusionMock from './mocks/fusion.json';
-import { evaluateFusion } from './fusionRules';
+import type {
+  ShieldId,
+  ShieldResult,
+  JobShieldResult,
+  VoiceShieldResult,
+  CarrierInfo,
+} from '../types/analysis';
 
-export const USE_MOCK = true;
+import {
+  analyzeVoice as analyzeVoiceApi,
+  type AnalyzeVoiceParams,
+} from '../lib/api/voice';
+import {
+  analyzeJob as analyzeJobApi,
+  type AnalyzeJobParams,
+} from '../lib/api/job';
+import {
+  registerSim as registerSimApi,
+  simulateSimEvent as simulateSimApi,
+  freezeSim as freezeSimApi,
+  resetSim as resetSimApi,
+  getSimDetails as getSimDetailsApi,
+} from '../lib/api/sim';
+import {
+  evaluateFusion as evaluateFusionApi,
+  generateIncidentReport as generateIncidentReportApi,
+  type FusionEvaluatePayload,
+  type IncidentReportPayload,
+} from '../lib/api/fusion';
+import {
+  getHistoryStats as getHistoryStatsApi,
+  getRecentScans as getRecentScansApi,
+} from '../lib/api/history';
+import {
+  getDemoVoiceResult,
+  getDemoJobResult,
+  getDemoFusionResult,
+  getDemoIncidentReport,
+  getDemoHistoryStats,
+  simMock,
+  simCarrierMock,
+} from '../lib/demoFallback';
 
-export interface AnalyzeJobParams {
-  text?: string;
-  file?: File | null;
+let useMockState = false;
+
+export function isUsingMock(): boolean {
+  return useMockState;
 }
 
-export interface AnalyzeVoiceParams {
-  file?: File | Blob | null;
-  sampleId?: string | null;
-  fileName?: string | null;
+export function setUseMock(val: boolean): void {
+  useMockState = val;
 }
+
+export const USE_MOCK = useMockState;
+
+export type { AnalyzeJobParams, AnalyzeVoiceParams };
 
 export const api = {
   getVoiceAnalysis: async (): Promise<ShieldResult> => {
-    if (USE_MOCK) {
-      return voiceMock as ShieldResult;
-    }
-    throw new Error('Live API endpoint not configured yet');
+    return getDemoVoiceResult() as unknown as ShieldResult;
   },
 
-  analyzeVoice: async (params: AnalyzeVoiceParams): Promise<VoiceShieldResult> => {
-    if (USE_MOCK) {
-      // 1. Choose based on sampleId if provided
-      if (params.sampleId === 'real_human') {
-        return voiceHumanMock as unknown as VoiceShieldResult;
-      }
-      if (params.sampleId === 'patient_support') {
-        return voiceAI2Mock as unknown as VoiceShieldResult;
-      }
-      if (params.sampleId === 'ai_deepfake') {
-        return voiceAIMock as unknown as VoiceShieldResult;
-      }
-
-      // 2. Choose based on file name or size if uploaded/recorded
-      const name = (params.fileName || (params.file instanceof File ? params.file.name : '') || '').toLowerCase();
-      if (name.includes('human') || name.includes('real')) {
-        return voiceHumanMock as unknown as VoiceShieldResult;
-      }
-      if (name.includes('support') || name.includes('patient')) {
-        return voiceAI2Mock as unknown as VoiceShieldResult;
-      }
-      if (name.includes('ai') || name.includes('fake') || name.includes('clone')) {
-        return voiceAIMock as unknown as VoiceShieldResult;
-      }
-
-      // 3. Fallback deterministic rule from size
-      const size = params.file?.size || 1024;
-      if (size % 3 === 0) {
-        return voiceHumanMock as unknown as VoiceShieldResult;
-      }
-      if (size % 2 === 0) {
-        return voiceAI2Mock as unknown as VoiceShieldResult;
-      }
-      return voiceAIMock as unknown as VoiceShieldResult;
+  analyzeVoice: async (
+    params: AnalyzeVoiceParams,
+    signal?: AbortSignal
+  ): Promise<VoiceShieldResult> => {
+    if (useMockState) {
+      return getDemoVoiceResult(params) as unknown as VoiceShieldResult;
     }
-
-    // Future live backend integration:
-    const formData = new FormData();
-    if (params.file) formData.append('audio', params.file);
-    if (params.sampleId) formData.append('sampleId', params.sampleId);
-
-    const response = await fetch('/api/audio/analyze', {
-      method: 'POST',
-      body: formData,
-    });
-    if (!response.ok) {
-      throw new Error(`Voice analysis failed: ${response.statusText}`);
-    }
-    return response.json();
+    return (await analyzeVoiceApi(params, signal)) as unknown as VoiceShieldResult;
   },
 
   getJobAnalysis: async (): Promise<ShieldResult> => {
-    if (USE_MOCK) {
-      return jobMock as ShieldResult;
-    }
-    throw new Error('Live API endpoint not configured yet');
+    return getDemoJobResult() as unknown as ShieldResult;
   },
 
-  analyzeJob: async (params: AnalyzeJobParams): Promise<JobShieldResult> => {
-    if (USE_MOCK) {
-      const text = (params.text || '').toLowerCase();
-      const hasFile = !!params.file;
-
-      // Heuristic in mock mode: keywords indicating scam vs safe
-      const scamKeywords = ['fee', 'upi', 'otp', 'deposit', 'limited seats', 'aadhaar', 'registration', 'gulf', 'ward coordinator'];
-      const isScam = hasFile || scamKeywords.some((kw) => text.includes(kw));
-
-      const baseResult = (isScam ? jobScamMock : jobSafeMock) as unknown as JobShieldResult;
-
-      // If user typed custom text, preserve their actual text in the returned mock
-      if (params.text && params.text.trim()) {
-        return {
-          ...baseResult,
-          extracted_text: params.text,
-        };
-      }
-
-      return baseResult;
+  analyzeJob: async (
+    params: AnalyzeJobParams,
+    signal?: AbortSignal
+  ): Promise<JobShieldResult> => {
+    if (useMockState) {
+      return getDemoJobResult(params) as unknown as JobShieldResult;
     }
-
-    // Future live backend integration:
-    const formData = new FormData();
-    if (params.file) formData.append('file', params.file);
-    if (params.text) formData.append('text', params.text);
-
-    const response = await fetch('/api/job/scan', {
-      method: 'POST',
-      body: formData,
-    });
-    if (!response.ok) {
-      throw new Error(`Job scan failed: ${response.statusText}`);
-    }
-    return response.json();
+    return (await analyzeJobApi(params, signal)) as unknown as JobShieldResult;
   },
 
   getSimAnalysis: async (): Promise<ShieldResult> => {
-    if (USE_MOCK) {
-      return simMock as ShieldResult;
-    }
-    throw new Error('Live API endpoint not configured yet');
+    return simMock as unknown as ShieldResult;
   },
 
-  registerNumber: async (_phone: string): Promise<CarrierInfo> => {
-    if (USE_MOCK) {
-      // Simulate 1.5s network delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      return simCarrierMock as unknown as CarrierInfo;
+  registerNumber: async (
+    phone: string,
+    guardianName?: string
+  ): Promise<CarrierInfo> => {
+    if (useMockState) {
+      return {
+        ...simCarrierMock,
+        _source: 'demo',
+      } as unknown as CarrierInfo;
     }
-
-    const response = await fetch('/api/sim/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: _phone }),
-    });
-    if (!response.ok) {
-      throw new Error(`Carrier registration failed: ${response.statusText}`);
-    }
-    return response.json();
+    return (await registerSimApi(phone, guardianName)) as unknown as CarrierInfo;
   },
 
-  getShieldAnalysis: async (shieldId: ShieldId): Promise<ShieldResult> => {
-    switch (shieldId) {
+  simulateSim: async (
+    type: string,
+    phone: string
+  ): Promise<{ status: string; riskScore: number; level: string }> => {
+    if (useMockState) {
+      return { status: 'anomaly', riskScore: 78, level: 'high' };
+    }
+    return await simulateSimApi(type, phone);
+  },
+
+  freezeSim: async (
+    phone: string
+  ): Promise<{ status: string; frozen: boolean; message: string }> => {
+    if (useMockState) {
+      return { status: 'frozen', frozen: true, message: 'SIM lock placed (demo)' };
+    }
+    return await freezeSimApi(phone);
+  },
+
+  resetSim: async (phone?: string): Promise<{ ok: boolean; message: string }> => {
+    if (useMockState) {
+      return { ok: true, message: 'Reset successful' };
+    }
+    return await resetSimApi(phone);
+  },
+
+  getSimDetails: async (phone: string) => {
+    return await getSimDetailsApi(phone);
+  },
+
+  getShieldAnalysis: async (shield: ShieldId): Promise<ShieldResult> => {
+    switch (shield) {
       case 'voice':
         return api.getVoiceAnalysis();
       case 'job':
@@ -163,51 +142,38 @@ export const api = {
     }
   },
 
-  getFusionAnalysis: async (): Promise<FusionResult> => {
-    if (USE_MOCK) {
-      return fusionMock as FusionResult;
-    }
-    throw new Error('Live API endpoint not configured yet');
+  getFusionAnalysis: async (): Promise<ShieldResult> => {
+    return getDemoFusionResult() as unknown as ShieldResult;
   },
 
-  runFusion: async (
-    shieldResults: Partial<Record<ShieldId, ShieldResult>>,
+  evaluateFusion: async (
+    payload: FusionEvaluatePayload,
     signal?: AbortSignal
-  ): Promise<FusionResult> => {
-    if (USE_MOCK) {
-      // 3.5s simulated synthesis delay
-      await new Promise<void>((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          resolve();
-        }, 3500);
-
-        if (signal) {
-          signal.addEventListener('abort', () => {
-            clearTimeout(timeout);
-            reject(new DOMException('Aborted', 'AbortError'));
-          });
-        }
-      });
-
-      return evaluateFusion(shieldResults);
+  ) => {
+    if (useMockState) {
+      return getDemoFusionResult();
     }
+    return await evaluateFusionApi(payload, signal);
+  },
 
-    // Future live backend integration:
-    const payload = {
-      voiceRisk: shieldResults.voice?.risk,
-      jobRisk: shieldResults.job?.risk,
-      simRisk: shieldResults.sim?.risk,
-    };
-
-    const response = await fetch('/api/fusion/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      signal,
-    });
-    if (!response.ok) {
-      throw new Error(`Fusion analysis failed: ${response.statusText}`);
+  generateReport: async (
+    payload: IncidentReportPayload,
+    signal?: AbortSignal
+  ) => {
+    if (useMockState) {
+      return getDemoIncidentReport();
     }
-    return response.json();
+    return await generateIncidentReportApi(payload, signal);
+  },
+
+  getHistoryStats: async (signal?: AbortSignal) => {
+    if (useMockState) {
+      return getDemoHistoryStats();
+    }
+    return await getHistoryStatsApi(signal);
+  },
+
+  getRecentScans: async (limit = 20, signal?: AbortSignal) => {
+    return await getRecentScansApi(limit, signal);
   },
 };

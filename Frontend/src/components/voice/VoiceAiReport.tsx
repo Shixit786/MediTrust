@@ -22,7 +22,11 @@ export const VoiceAiReport: React.FC<VoiceAiReportProps> = React.memo(({ ai }) =
             <Sparkles className="w-4 h-4 text-[#3B5BFF]" />
           </div>
           <div>
-            <MonoLabel color="accent">AI FORENSICS REPORT</MonoLabel>
+            <MonoLabel color="accent">
+              {(ai as { provider?: string }).provider === 'template'
+                ? 'TEMPLATE EXPLANATION'
+                : 'AI EXPLANATION'}
+            </MonoLabel>
             <h3 className="text-xl sm:text-2xl font-light font-['Inter_Tight'] text-[#0A0A0A]">
               Autonomous Acoustic Dossier
             </h3>

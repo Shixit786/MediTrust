@@ -80,8 +80,8 @@ export const HistoryStats: React.FC<HistoryStatsProps> = React.memo(
                 type="button"
                 onClick={() => onFilterChange(f)}
                 className={`relative px-4 py-2 rounded-xl font-mono-label text-xs font-semibold transition-colors shrink-0 cursor-pointer ${active
-                    ? 'bg-[#0A0A0A] text-white'
-                    : 'bg-white hover:bg-[#F0F0F0] text-[#0A0A0A] border border-[#0A0A0A]/15'
+                  ? 'bg-[#0A0A0A] text-white'
+                  : 'bg-white hover:bg-[#F0F0F0] text-[#0A0A0A] border border-[#0A0A0A]/15'
                   }`}
               >
                 <span>{f}</span>

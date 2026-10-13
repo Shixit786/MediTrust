@@ -7,7 +7,7 @@ import type { CarrierInfo } from '../../types/analysis';
 import { Smartphone, Check, AlertCircle } from 'lucide-react';
 
 interface SimRegisterSectionProps {
-  onRegistered: (data: { maskedNumber: string; carrier: CarrierInfo }) => void;
+  onRegistered: (data: { maskedNumber: string; carrier: CarrierInfo; rawPhone: string }) => void;
 }
 
 const REGISTRATION_STEPS = [
@@ -63,14 +63,14 @@ export const SimRegisterSection: React.FC<SimRegisterSectionProps> = React.memo(
         window.setTimeout(() => {
           setIsRegistering(false);
           const masked = `+91 ${rawDigits.slice(0, 2)}••• ••${rawDigits.slice(7)}`;
-          onRegistered({ maskedNumber: masked, carrier });
+          onRegistered({ maskedNumber: masked, carrier, rawPhone: rawDigits });
         }, 1500);
-      } catch (err) {
+      } catch (err: unknown) {
         clearTimeout(t1);
         clearTimeout(t2);
         setIsRegistering(false);
-        setError('Failed to query carrier registry. Please retry.');
-        console.error('Registration error:', err);
+        const msg = err instanceof Error ? err.message : 'Failed to query carrier registry. Please retry.';
+        setError(msg);
       }
     };
 
@@ -112,24 +112,22 @@ export const SimRegisterSection: React.FC<SimRegisterSectionProps> = React.memo(
                 return (
                   <div key={step} className="flex items-center gap-2 font-mono text-xs">
                     <div
-                      className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[11px] transition-colors ${
-                        isDone
+                      className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[11px] transition-colors ${isDone
                           ? 'bg-[#0A0A0A] text-white'
                           : isActive
-                          ? 'bg-[#FF4FA3] text-white ring-4 ring-[#FF4FA3]/20'
-                          : 'bg-[#F0F0F0] text-[#6B6F76]'
-                      }`}
+                            ? 'bg-[#FF4FA3] text-white ring-4 ring-[#FF4FA3]/20'
+                            : 'bg-[#F0F0F0] text-[#6B6F76]'
+                        }`}
                     >
                       {isDone ? <Check className="w-3.5 h-3.5" /> : idx + 1}
                     </div>
                     <span
-                      className={`${
-                        isActive
+                      className={`${isActive
                           ? 'text-[#0A0A0A] font-bold'
                           : isDone
-                          ? 'text-[#0A0A0A]'
-                          : 'text-[#6B6F76]'
-                      }`}
+                            ? 'text-[#0A0A0A]'
+                            : 'text-[#6B6F76]'
+                        }`}
                     >
                       {step}
                     </span>

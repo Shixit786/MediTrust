@@ -1,11 +1,12 @@
 import React, { useEffect, useCallback, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAnalysisStore } from '../store/useAnalysisStore';
-import { api } from '../services/api';
-import type { VoiceShieldResult, FeatureStatus } from '../types/analysis';
+import { api, isUsingMock } from '../services/api';
+import { API_BASE_URL } from '../lib/api/client';
+import type { FeatureStatus } from '../types/analysis';
 import { VoiceShieldHeader } from '../components/voice/VoiceShieldHeader';
 import { VoiceInputSection } from '../components/voice/VoiceInputSection';
-import { VoiceAnalysisView } from '../components/voice/VoiceAnalysisView';
+import { VoiceAnalysisView, type VoiceAnalysisStage } from '../components/voice/VoiceAnalysisView';
 import { VoiceResultVerdict } from '../components/voice/VoiceResultVerdict';
 import { VoiceWaveformTimeline } from '../components/voice/VoiceWaveformTimeline';
 import { VoiceFeaturesTable } from '../components/voice/VoiceFeaturesTable';
@@ -28,8 +29,10 @@ export const VoiceShieldPage: React.FC = React.memo(() => {
   // Guard to ensure demo auto-run executes only once per visit
   const hasAutoRunRef = useRef(false);
 
-  // Cached pending result during 4.5s analysis animation
-  const pendingResultRef = useRef<VoiceShieldResult | null>(null);
+  // In-flight abort controller
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Cached pending request params for RETRY
   const pendingParamsRef = useRef<{
     file?: File | Blob | null;
     sampleId?: string | null;
@@ -37,15 +40,31 @@ export const VoiceShieldPage: React.FC = React.memo(() => {
     duration?: number | null;
   }>({});
 
+  // Real request lifecycle stage
+  const [stage, setStage] = useState<VoiceAnalysisStage>('IDLE');
   const [featureStatuses, setFeatureStatuses] = useState<FeatureStatus[]>(() =>
     Array(9).fill('normal')
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Cleanup: Reset gradient blob tone to idle on unmount
+  // Dev-only debug strip state
+  const [debugOpen, setDebugOpen] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<{
+    stage: string;
+    status: number;
+    code: string;
+    durationMs: number;
+    baseUrl: string;
+    isMock: boolean;
+  } | null>(null);
+
+  // Reset gradient blob tone to idle on unmount & abort real in-flight requests
   useEffect(() => {
     return () => {
       setBlobTone('idle');
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
     };
   }, [setBlobTone]);
 
@@ -65,10 +84,22 @@ export const VoiceShieldPage: React.FC = React.memo(() => {
       fileName?: string | null;
       duration?: number | null;
     }) => {
+      // Prevent double submits while in-flight
+      if (voiceShieldState === 'analyzing') {
+        return;
+      }
+
       setErrorMessage(null);
       pendingParamsRef.current = data;
 
-      // Determine feature statuses for staggered synapse visualization
+      // Abort previous in-flight request if any
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
+      // Determine feature statuses for synapse visualization
       const sampleId = data.sampleId;
       const name = (data.fileName || '').toLowerCase();
       const isHuman = sampleId === 'real_human' || name.includes('human') || name.includes('real');
@@ -103,26 +134,86 @@ export const VoiceShieldPage: React.FC = React.memo(() => {
         ]);
       }
 
+      // Transition: VALIDATING -> UPLOADING -> ANALYZING ON SERVER -> RECEIVED -> DONE
       setVoiceShieldState('analyzing');
+      setStage('VALIDATING');
+
+      const startTime = Date.now();
 
       try {
-        const res = await api.analyzeVoice({
-          file: data.file,
-          sampleId: data.sampleId,
-          fileName: data.fileName,
-        });
-        pendingResultRef.current = res;
-      } catch (err) {
-        console.error('Voice analysis error:', err);
-        setErrorMessage(
-          err instanceof Error
-            ? err.message
-            : 'Unable to complete acoustic forensic analysis. Please verify your connection and try again.'
+        setStage('UPLOADING');
+
+        // Allow microtask to reflect UPLOADING before proceeding
+        const res = await api.analyzeVoice(
+          {
+            file: data.file,
+            sampleId: data.sampleId,
+            fileName: data.fileName,
+          },
+          controller.signal
         );
+
+        setStage('RECEIVED');
+        const durationMs = Date.now() - startTime;
+
+        setDebugInfo({
+          stage: 'RECEIVED',
+          status: 200,
+          code: 'OK',
+          durationMs,
+          baseUrl: API_BASE_URL,
+          isMock: isUsingMock() || res._source === 'demo',
+        });
+
+        // Store result into state and global shieldResults for Dashboard & Fusion
+        setVoiceResult(res);
+        setShieldResult('voice', res);
+
+        // Brief delay for visual completion
+        window.setTimeout(() => {
+          setVoiceShieldState('done');
+          setStage('DONE');
+          setBlobTone(res.level);
+        }, 350);
+      } catch (err: unknown) {
+        const isAbort = err instanceof DOMException && err.name === 'AbortError';
+        if (isAbort && controller.signal.aborted) {
+          return;
+        }
+
+        const durationMs = Date.now() - startTime;
+        const errObj = err as { code?: string; status?: number; message?: string };
+        const code = errObj.code || 'UNKNOWN_ERROR';
+        const status = errObj.status || 0;
+        const msg =
+          errObj.message ||
+          'Unable to complete acoustic forensic analysis. Please verify your connection and try again.';
+
+        if (import.meta.env.DEV) {
+          // Log only non-sensitive debug telemetry
+          console.warn('[Voice Analysis] Request failed:', {
+            stage,
+            code,
+            status,
+            durationMs,
+          });
+        }
+
+        setDebugInfo({
+          stage: 'ERROR',
+          status,
+          code,
+          durationMs,
+          baseUrl: API_BASE_URL,
+          isMock: isUsingMock(),
+        });
+
+        setErrorMessage(msg);
+        setStage('ERROR');
         setVoiceShieldState('error');
       }
     },
-    [setVoiceShieldState]
+    [voiceShieldState, setVoiceShieldState, setVoiceResult, setShieldResult, setBlobTone, stage]
   );
 
   // Auto-run support for demo mode: loads AI sample and analyses automatically
@@ -137,22 +228,23 @@ export const VoiceShieldPage: React.FC = React.memo(() => {
     }
   }, [searchParams, voiceShieldState, handleAnalyze]);
 
-  const handleAnalysisComplete = useCallback(() => {
-    if (pendingResultRef.current) {
-      const res = pendingResultRef.current;
-      setVoiceResult(res);
-      setShieldResult('voice', res);
-      setVoiceShieldState('done');
-      setBlobTone(res.level);
-    } else if (!errorMessage) {
-      setVoiceShieldState('error');
-      setErrorMessage('Analysis timed out. Please try again.');
+  const handleHardTimeout = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
     }
-  }, [errorMessage, setBlobTone, setShieldResult, setVoiceResult, setVoiceShieldState]);
+    setStage('ERROR');
+    setVoiceShieldState('error');
+    setErrorMessage(
+      'Acoustic verification timed out after 45 seconds. The server may be busy or processing a long clip. Please try again.'
+    );
+  }, [setVoiceShieldState]);
 
   const handleAnalyzeAnother = useCallback(() => {
-    pendingResultRef.current = null;
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
     resetVoiceShield();
+    setStage('IDLE');
     setBlobTone('idle');
     setErrorMessage(null);
   }, [resetVoiceShield, setBlobTone]);
@@ -167,10 +259,34 @@ export const VoiceShieldPage: React.FC = React.memo(() => {
 
   return (
     <div className="w-full max-w-[1400px] mx-auto px-6 sm:px-10 md:px-14 py-10 sm:py-16 flex flex-col">
-      {/* 1) Header */}
-      <VoiceShieldHeader />
+      {/* 1) Header with real connectivity and source-of-truth badge */}
+      <VoiceShieldHeader sourceOfTruth={voiceResult?._source || null} />
 
-      {/* 2) Error State */}
+      {/* Development-Only Diagnostics Strip */}
+      {import.meta.env.DEV && debugInfo && (
+        <div className="my-4 p-3.5 rounded-xl bg-[#F0F0F0] border border-[#0A0A0A]/15 text-xs font-mono">
+          <button
+            type="button"
+            onClick={() => setDebugOpen(!debugOpen)}
+            className="flex items-center justify-between w-full text-left font-bold text-[#0A0A0A] hover:text-[#3B5BFF] transition-colors cursor-pointer"
+          >
+            <span>[DEV DIAGNOSTICS] LAST FORENSIC REQUEST STATUS</span>
+            <span className="text-[11px]">{debugOpen ? '▲ COLLAPSE' : '▼ EXPAND'}</span>
+          </button>
+          {debugOpen && (
+            <div className="mt-3 pt-2.5 border-t border-[#0A0A0A]/10 grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-[#6B6F76]">
+              <div>STAGE: <span className="text-[#0A0A0A] font-semibold">{debugInfo.stage}</span></div>
+              <div>HTTP STATUS: <span className="text-[#0A0A0A] font-semibold">{debugInfo.status || 'N/A'}</span></div>
+              <div>CODE: <span className="text-[#0A0A0A] font-semibold">{debugInfo.code}</span></div>
+              <div>DURATION: <span className="text-[#0A0A0A] font-semibold">{debugInfo.durationMs}ms</span></div>
+              <div>BASE URL: <span className="text-[#0A0A0A] font-semibold">{debugInfo.baseUrl}</span></div>
+              <div>MOCK ACTIVE: <span className="text-[#0A0A0A] font-semibold">{debugInfo.isMock ? 'YES' : 'NO'}</span></div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 2) Error State with Retry Button */}
       {voiceShieldState === 'error' && (
         <div
           role="alert"
@@ -189,8 +305,9 @@ export const VoiceShieldPage: React.FC = React.memo(() => {
           </div>
 
           <button
+            type="button"
             onClick={handleRetry}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0A0A0A] text-white text-xs font-mono font-semibold tracking-wider hover:bg-[#202020] transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0A0A0A] text-white text-xs font-mono font-semibold tracking-wider hover:bg-[#202020] transition-colors cursor-pointer"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>RETRY</span>
@@ -200,20 +317,32 @@ export const VoiceShieldPage: React.FC = React.memo(() => {
 
       {/* 3) Input Section (Visible when idle or after error) */}
       {(voiceShieldState === 'idle' || voiceShieldState === 'error') && (
-        <VoiceInputSection onAnalyze={handleAnalyze} />
+        <VoiceInputSection
+          onAnalyze={handleAnalyze}
+          isAnalyzing={false}
+        />
       )}
 
-      {/* 4) Analysis View (Replaces input area while analyzing) */}
+      {/* 4) Analysis View (Real request lifecycle driven) */}
       {voiceShieldState === 'analyzing' && (
         <VoiceAnalysisView
+          stage={stage}
           featureStatuses={featureStatuses}
-          onAnalysisComplete={handleAnalysisComplete}
+          onHardTimeout={handleHardTimeout}
         />
       )}
 
       {/* 5) Result View (Appears after analysis completes) */}
       {voiceShieldState === 'done' && voiceResult && (
-        <div className="w-full space-y-2 animate-fade-in" aria-live="polite">
+        <div className="w-full space-y-4 animate-fade-in" aria-live="polite">
+          {/* Demo Fallback Data Badge */}
+          {voiceResult._source === 'demo' && (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-[#F59E0B]/15 text-[#B45309] border border-[#F59E0B]/30">
+              <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
+              <span>Demo data (backend offline)</span>
+            </div>
+          )}
+
           {/* a) Verdict with Synthetic Voice Risk */}
           <VoiceResultVerdict
             result={voiceResult}
@@ -230,7 +359,7 @@ export const VoiceShieldPage: React.FC = React.memo(() => {
           {/* c) Nine Features Table */}
           <VoiceFeaturesTable features={voiceResult.features} />
 
-          {/* d) Neural Synapse Map Card (compact post-analysis frame) */}
+          {/* d) Neural Synapse Map Card */}
           <VoiceSynapseMapCard
             featureStatuses={voiceResult.features.map((f) => f.status)}
           />

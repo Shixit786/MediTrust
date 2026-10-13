@@ -85,7 +85,7 @@ export const FusionSignalCards: React.FC<FusionSignalCardsProps> = React.memo(
                   <div className="flex items-baseline gap-2 mb-2">
                     {hasResult ? (
                       <>
-                        <BigNumber value={result.risk} size="giant" animate={false} />
+                        <BigNumber value={result.risk} size="giant" animate={true} duration={1.0} />
                         <span className="font-mono-label text-xs text-[#6B6F76]">/100 RISK</span>
                       </>
                     ) : (
@@ -98,6 +98,21 @@ export const FusionSignalCards: React.FC<FusionSignalCardsProps> = React.memo(
                   <p className="font-['Inter_Tight'] text-sm text-[#6B6F76] font-normal truncate">
                     {hasResult ? result.threat : 'Awaiting vector analysis'}
                   </p>
+
+                  {/* Top 2 to 3 Signals Drop-in */}
+                  {hasResult && result.signals && result.signals.length > 0 && (
+                    <div className="mt-4 pt-3 border-t border-[#0A0A0A]/10 space-y-1.5">
+                      <span className="font-mono-label text-[10px] text-[#6B6F76] block">
+                        KEY SIGNALS:
+                      </span>
+                      {result.signals.slice(0, 3).map((sig, idx) => (
+                        <div key={idx} className="flex items-start gap-1.5 text-xs text-[#0A0A0A] leading-tight">
+                          <span className="text-[#0037FF] font-bold text-[10px] mt-0.5">•</span>
+                          <span className="truncate font-medium">{sig.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Footer link to individual shield page */}

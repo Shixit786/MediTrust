@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { History, Menu, X, Shield, ArrowUpRight } from 'lucide-react';
 import { MonoLabel } from '../ui/MonoLabel';
 import { HairlineRow } from '../ui/HairlineRow';
 import { useAnalysisStore } from '../../store/useAnalysisStore';
+import { useBackendStatus } from '../../lib/api/health';
 
 export interface TopBarProps {
   onShieldClick?: (shieldId: string) => void;
@@ -28,10 +29,12 @@ const menuLinks = [
 ];
 
 export const TopBar: React.FC<TopBarProps> = React.memo(({ onShieldClick }) => {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const menuOpen = useAnalysisStore((s) => s.isMenuOpen);
+  const setMenuOpen = useAnalysisStore((s) => s.setMenuOpen);
   const location = useLocation();
   const navigate = useNavigate();
   const startPresenter = useAnalysisStore((s) => s.startPresenter);
+  const backendStatus = useBackendStatus();
 
   // Lock scroll when menu open
   useEffect(() => {
@@ -76,19 +79,56 @@ export const TopBar: React.FC<TopBarProps> = React.memo(({ onShieldClick }) => {
         style={{ height: '80px', transform: 'translateZ(0)' }}
       >
         <div className="w-full max-w-[1400px] h-full mx-auto px-6 sm:px-10 md:px-14 flex items-center justify-between">
-          {/* Left: Brand Wordmark */}
-          <Link
-            to="/"
-            className="flex items-center gap-3 sm:gap-4 group outline-none focus-visible:ring-2 focus-visible:ring-[#0037FF] rounded-sm py-1"
-          >
-            <span className="font-['Inter_Tight'] font-bold text-2xl sm:text-3xl tracking-tighter text-[#0A0A0A] lowercase">
-              meditrust
-            </span>
-            <span className="hidden sm:inline-block w-[1px] h-4 bg-[#0A0A0A]/30" />
-            <MonoLabel color="muted" className="hidden sm:inline-flex text-[11px] font-medium">
-              HEALTHCARE SAFETY
-            </MonoLabel>
-          </Link>
+          {/* Left: Brand Wordmark & Status Badge */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            <Link
+              to="/"
+              className="flex items-center gap-3 sm:gap-4 group outline-none focus-visible:ring-2 focus-visible:ring-[#0037FF] rounded-sm py-1"
+            >
+              <span className="font-['Inter_Tight'] font-bold text-2xl sm:text-3xl tracking-tighter text-[#0A0A0A] lowercase">
+                meditrust
+              </span>
+              <span className="hidden sm:inline-block w-[1px] h-4 bg-[#0A0A0A]/30" />
+              <MonoLabel color="muted" className="hidden sm:inline-flex text-[11px] font-medium">
+                HEALTHCARE SAFETY
+              </MonoLabel>
+            </Link>
+
+            {/* Backend Status Badge */}
+            <div
+              className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono tracking-wider border ${
+                backendStatus.status === 'online'
+                  ? 'bg-[#10B981]/10 text-[#059669] border-[#10B981]/30'
+                  : backendStatus.status === 'degraded'
+                  ? 'bg-[#F59E0B]/10 text-[#D97706] border-[#F59E0B]/30'
+                  : 'bg-[#EF4444]/10 text-[#DC2626] border-[#EF4444]/30'
+              }`}
+              title={
+                backendStatus.status === 'online'
+                  ? 'Backend online'
+                  : backendStatus.status === 'degraded'
+                  ? 'Backend degraded (AI keys or DB missing)'
+                  : 'Backend offline - demo fallback active'
+              }
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  backendStatus.status === 'online'
+                    ? 'bg-[#10B981] animate-pulse'
+                    : backendStatus.status === 'degraded'
+                    ? 'bg-[#F59E0B]'
+                    : 'bg-[#EF4444]'
+                }`}
+              />
+              <span className="font-semibold text-[10px] sm:text-[11px]">
+                {backendStatus.status === 'online'
+                  ? 'Live'
+                  : backendStatus.status === 'degraded'
+                  ? 'Degraded'
+                  : 'Demo data (backend offline)'}
+              </span>
+            </div>
+          </div>
 
           {/* Center: Exactly Three Shield Wordmark Navigation Links */}
           <nav className="hidden lg:flex items-center gap-8 xl:gap-10">
